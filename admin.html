@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Administration — Bloom Shoes</title>
+  <link rel="icon" type="image/png" href="images/site/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    body{background:#f3f0ea}
+    .a-head{background:var(--navy);color:#fff;position:sticky;top:0;z-index:30}
+    .a-head .container{display:flex;align-items:center;gap:1rem;min-height:70px;flex-wrap:wrap;padding:.6rem 0}
+    .a-head img{height:48px;width:auto}
+    .a-head h1{color:#fff;font-size:1.15rem;margin:0}
+    .a-head .spacer{flex:1}
+    .a-status{font-size:.8rem;padding:.35em .9em;border-radius:999px;background:rgba(255,255,255,.12)}
+    .a-status.is-dirty{background:var(--orange)}
+    .a-tabs{display:flex;gap:.4rem;margin:1.6rem 0 1.2rem;flex-wrap:wrap}
+    .a-tab{border:0;background:#fff;padding:.7em 1.3em;border-radius:999px;font:500 .9rem var(--sans);cursor:pointer;color:var(--navy)}
+    .a-tab.is-active{background:var(--navy);color:#fff}
+    .panel[hidden]{display:none}
+    .help{background:#fff8f1;border:1px solid #f4d5bb;border-radius:14px;padding:1rem 1.2rem;font-size:.88rem;color:#7a4a22;margin-bottom:1.2rem}
+    .help strong{color:#5c3410}
+    .bar{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1.2rem}
+    .bar .grow{flex:1}
+    .bar select,.bar input{font:inherit;font-size:.9rem;padding:.6em 1em;border:1px solid var(--line);border-radius:999px;background:#fff}
+    .items{display:grid;gap:1rem}
+    .item{background:#fff;border-radius:18px;padding:1.1rem;display:grid;grid-template-columns:170px 1fr;gap:1.2rem;box-shadow:0 6px 20px -14px rgba(14,34,66,.4)}
+    .item__img{position:relative}
+    .item__img img{width:170px;height:170px;object-fit:cover;border-radius:12px;background:#eee}
+    .item__img label{display:block;margin-top:.5rem;text-align:center;font-size:.8rem;font-weight:500;color:var(--navy);background:var(--cream);border-radius:999px;padding:.45em;cursor:pointer}
+    .item__img input{display:none}
+    .fields{display:grid;grid-template-columns:repeat(6,1fr);gap:.7rem}
+    .fields label{display:flex;flex-direction:column;gap:.25rem;font-size:.76rem;font-weight:500;color:#4b5563;grid-column:span 2}
+    .fields label.w3{grid-column:span 3}
+    .fields label.w6{grid-column:span 6}
+    .fields label.w1{grid-column:span 1}
+    .fields input,.fields select,.fields textarea{font:inherit;font-size:.92rem;font-weight:400;padding:.55em .75em;border:1px solid #ddd6ca;border-radius:10px;background:#fdfcfa;width:100%}
+    .fields input:focus,.fields select:focus,.fields textarea:focus{outline:0;border-color:var(--navy)}
+    .fields .check{flex-direction:row;align-items:center;gap:.5rem;font-size:.88rem;padding-top:1.2rem}
+    .fields .check input{width:auto}
+    .item__actions{grid-column:1/-1;display:flex;gap:.5rem;justify-content:flex-end;border-top:1px solid var(--line);padding-top:.8rem}
+    .mini{border:1px solid var(--line);background:#fff;border-radius:999px;padding:.45em 1em;font:500 .8rem var(--sans);cursor:pointer;color:var(--navy)}
+    .mini:hover{border-color:var(--navy)}
+    .mini--danger{color:#b91c1c}
+    .mini--danger:hover{border-color:#b91c1c;background:#fef2f2}
+    .card-box{background:#fff;border-radius:18px;padding:1.5rem;box-shadow:0 6px 20px -14px rgba(14,34,66,.4);margin-bottom:1.2rem}
+    .card-box h2{font-size:1.4rem}
+    .card-box p{font-size:.9rem;color:#4b5563}
+    .log{font:12px/1.5 ui-monospace,monospace;background:#0e2242;color:#cfe3ff;border-radius:12px;padding:1rem;max-height:240px;overflow:auto;white-space:pre-wrap;margin-top:1rem}
+    .log:empty{display:none}
+    .counter{font-size:.85rem;color:var(--muted)}
+    @media (max-width:760px){
+      .item{grid-template-columns:1fr}
+      .item__img img{width:100%;height:220px}
+      .fields{grid-template-columns:repeat(2,1fr)}
+      .fields label,.fields label.w3,.fields label.w6,.fields label.w1{grid-column:span 2}
+      .fields label.w1,.fields label.half{grid-column:span 1}
+    }
+  </style>
+</head>
+<body>
+  <header class="a-head">
+    <div class="container">
+      <img src="images/site/logo.png" alt="Bloom Shoes">
+      <h1>Administration</h1>
+      <span class="spacer"></span>
+      <span class="a-status" id="status">À jour</span>
+      <a class="btn btn--ghost" href="index.html?apercu=1" target="_blank" rel="noopener" style="padding:.55em 1.1em;font-size:.85rem">Aperçu du site</a>
+      <button class="btn btn--orange" id="btn-publish-top" style="padding:.55em 1.1em;font-size:.85rem">Publier en ligne</button>
+    </div>
+  </header>
+
+  <main class="container" style="padding-bottom:4rem">
+    <nav class="a-tabs" role="tablist">
+      <button class="a-tab is-active" data-tab="produits">Produits</button>
+      <button class="a-tab" data-tab="categories">Catégories</button>
+      <button class="a-tab" data-tab="infos">Infos boutique</button>
+      <button class="a-tab" data-tab="publier">Publication</button>
+    </nav>
+
+    <!-- PRODUITS -->
+    <section class="panel" id="p-produits">
+      <div class="help">
+        <strong>Comment ça marche :</strong> modifiez l'image, le nom, le prix ou la description directement ci-dessous.
+        Tout est enregistré automatiquement sur cet appareil. Cliquez sur <strong>« Aperçu du site »</strong> pour voir le résultat,
+        puis sur <strong>« Publier en ligne »</strong> pour que vos clients voient les changements.
+      </div>
+      <div class="bar">
+        <button class="btn btn--navy" id="add-prod">+ Ajouter un produit</button>
+        <select id="filter-cat" aria-label="Filtrer par catégorie"></select>
+        <input type="search" id="filter-q" placeholder="Rechercher…" aria-label="Rechercher">
+        <span class="grow"></span>
+        <span class="counter" id="prod-count"></span>
+      </div>
+      <div class="items" id="prod-list"></div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section class="panel" id="p-categories" hidden>
+      <div class="help">Ajoutez autant de catégories que vous voulez et donnez-leur le nom de votre choix. Chaque produit est ensuite rangé dans une catégorie ; tous les produits apparaissent dans la boutique.</div>
+      <div class="bar"><button class="btn btn--navy" id="add-cat">+ Ajouter une catégorie</button></div>
+      <div class="items" id="cat-list"></div>
+    </section>
+
+    <!-- INFOS -->
+    <section class="panel" id="p-infos" hidden>
+      <div class="card-box">
+        <h2>Informations de la boutique</h2>
+        <div class="fields" id="infos"></div>
+      </div>
+    </section>
+
+    <!-- PUBLICATION -->
+    <section class="panel" id="p-publier" hidden>
+      <div class="card-box">
+        <h2>Publier en ligne</h2>
+        <p>Le site est hébergé gratuitement sur GitHub Pages. Pour publier vos modifications depuis cette page, collez une fois votre <strong>clé d'accès GitHub</strong> (jeton personnel avec le droit « Contents : Read and write » sur le dépôt). Elle reste uniquement dans ce navigateur. La mise en ligne prend ensuite 1 à 2 minutes.</p>
+        <div class="fields" style="margin:1rem 0">
+          <label>Compte GitHub<input id="gh-owner" placeholder="koffiavenance"></label>
+          <label>Dépôt<input id="gh-repo" placeholder="teste"></label>
+          <label>Branche<input id="gh-branch" placeholder="main"></label>
+          <label class="w6">Clé d'accès (jeton GitHub)<input id="gh-token" type="password" placeholder="github_pat_…" autocomplete="off"></label>
+        </div>
+        <div class="bar">
+          <button class="btn btn--orange" id="btn-publish">Publier en ligne</button>
+          <button class="mini mini--danger" id="gh-forget">Oublier la clé</button>
+        </div>
+        <div class="log" id="log"></div>
+      </div>
+      <div class="card-box">
+        <h2>Sauvegarde</h2>
+        <p>Téléchargez une copie de votre catalogue (fichier <code>catalogue.js</code>) pour la garder ou la remplacer manuellement dans le dossier <code>data/</code> du site.</p>
+        <div class="bar">
+          <button class="btn btn--navy" id="btn-export">Télécharger le catalogue</button>
+          <label class="mini" style="padding:.75em 1.2em">Importer un catalogue<input type="file" id="btn-import" accept=".js,.json" hidden></label>
+          <button class="mini mini--danger" id="btn-reset">Annuler mes modifications non publiées</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="data/catalogue.js"></script>
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>
