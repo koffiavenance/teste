@@ -81,8 +81,8 @@ window.BLOOM_CATALOGUE = {
       "id": "mocassin-croco-gris",
       "nom": "Mocassin Croco Gris Anthracite",
       "categorie": "mocassins-conduite",
-      "prix": 38000,
-      "ancienPrix": null,
+      "prix": 35000,
+      "ancienPrix": 38000,
       "description": "Cuir embossé croco gris, lacet décoratif et finitions surpiquées.",
       "couleurs": [
         "Gris",
