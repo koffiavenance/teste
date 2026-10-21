@@ -1,6 +1,6 @@
 # Bloom Shoes — site vitrine & boutique
 
-Site de vente de chaussures en cuir pour homme (Abidjan, Jamé). Les commandes sont envoyées directement sur WhatsApp Business (**07 48 11 09 42**).
+Site de vente de chaussures en cuir pour homme (Abidjan, Adjamé). Les commandes sont envoyées directement sur WhatsApp Business (**07 48 11 09 42**).
 
 ## Pages
 

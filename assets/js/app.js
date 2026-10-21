@@ -24,7 +24,10 @@
   var shop = data.boutique || {};
   var cats = data.categories || [];
   var prods = (data.produits || []).filter(function (p) { return p.nom; });
-  var state = { cat: 'all', q: '', sort: '' };
+  var offres = shop.offres || {};
+  var ess = offres.essentiel || { nom: 'Offre Essentielle' };
+  var vip = offres.vip || { nom: 'Pack VIP Professionnel', contenu: [], supplement: 0 };
+  var state = { cat: 'all', q: '', sort: '', offre: '' };
   var current = null;
 
   var $ = function (s, c) { return (c || document).querySelector(s); };
@@ -38,6 +41,15 @@
   function money(n) {
     if (n === null || n === undefined || n === '') return 'Prix sur demande';
     return Number(n).toLocaleString('fr-FR').replace(/ | /g, ' ') + ' ' + (shop.devise || 'FCFA');
+  }
+  function vipPrice(p) {
+    if (p.prixVIP !== null && p.prixVIP !== undefined && p.prixVIP !== '') return Number(p.prixVIP);
+    if (p.prix === null || p.prix === undefined || p.prix === '') return null;
+    return Number(p.prix) + Number(vip.supplement || 0);
+  }
+  function offerPrice(p, o) { return o === 'vip' ? vipPrice(p) : p.prix; }
+  function getPath(obj, path) {
+    return path.split('.').reduce(function (o, k) { return o == null ? o : o[k]; }, obj);
   }
   function catName(id) {
     var c = cats.find(function (x) { return x.id === id; });
@@ -55,7 +67,41 @@
   $$('[data-tel]').forEach(function (el) { el.textContent = shop.telephone || ''; });
   $$('[data-adresse]').forEach(function (el) { el.textContent = shop.adresse || ''; });
   $$('[data-call]').forEach(function (a) { a.href = 'tel:+' + String(shop.whatsapp || '').replace(/\D/g, ''); });
+  $$('[data-shop]').forEach(function (el) {
+    var v = getPath(shop, el.dataset.shop);
+    if (v !== undefined && v !== null && v !== '') el.textContent = v;
+  });
   $('#year').textContent = new Date().getFullYear();
+
+  /* --- Section « Nos offres » --- */
+  $$('[data-offre-nom="essentiel"]').forEach(function (el) { el.textContent = ess.nom; });
+  $$('[data-offre-nom="vip"]').forEach(function (el) { el.textContent = vip.nom; });
+  if (ess.description) $('[data-offre-desc]').textContent = ess.description;
+  $('#vip-contenu').innerHTML = (vip.contenu || []).map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('');
+  if (vip.image) $('#vip-visual').innerHTML = '<img src="' + esc(vip.image) + '" alt="' + esc(vip.nom) + '" loading="lazy">';
+  function minPrice(o) {
+    var v = prods.map(function (p) { return offerPrice(p, o); }).filter(function (n) { return n !== null && !isNaN(n); });
+    return v.length ? Math.min.apply(null, v) : null;
+  }
+  $('[data-offre-min="essentiel"]').textContent = money(minPrice('essentiel'));
+  $('[data-offre-min="vip"]').textContent = money(minPrice('vip'));
+  $$('[data-choisir]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      state.offre = b.dataset.choisir;
+      renderOfferBanner();
+      $('#boutique').scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+  var banner = document.createElement('div');
+  banner.className = 'offer-banner';
+  banner.hidden = true;
+  $('#grid').before(banner);
+  function renderOfferBanner() {
+    banner.hidden = !state.offre;
+    if (!state.offre) return;
+    banner.innerHTML = 'Offre choisie : <b>' + esc(state.offre === 'vip' ? vip.nom : ess.nom) + '</b>. Cliquez maintenant sur le modèle de votre choix. <button type="button">Changer</button>';
+    $('button', banner).onclick = function () { state.offre = ''; renderOfferBanner(); $('#offres').scrollIntoView({ behavior: 'smooth' }); };
+  }
   $('#stat-produits').textContent = prods.length;
   $('#stat-categories').textContent = cats.length;
 
@@ -118,6 +164,7 @@
         '<div class="card__body"><span class="card__cat">' + esc(catName(p.categorie)) + '</span>' +
         '<h3 class="card__name">' + esc(p.nom) + '</h3>' +
         '<div class="swatches">' + (p.couleurs || []).slice(0, 3).map(function (c) { return '<span>' + esc(c) + '</span>'; }).join('') + '</div>' +
+        (vipPrice(p) !== null ? '<span class="card__vip">' + esc(vip.nom) + ' : <b>' + money(vipPrice(p)) + '</b></span>' : '') +
         '<div class="card__foot"><span class="price">' + money(p.prix) + old + '</span><span class="card__btn" aria-hidden="true">+</span></div></div></article>';
     }).join('');
   }
@@ -142,7 +189,11 @@
     $('#m-img').alt = p.nom;
     $('#m-cat').textContent = catName(p.categorie);
     $('#m-nom').textContent = p.nom;
-    $('#m-prix').innerHTML = money(p.prix) + (p.ancienPrix ? ' <s style="color:#9ca3af;font-weight:400;font-size:.9rem">' + money(p.ancienPrix) + '</s>' : '');
+    $('#m-prix-ess').textContent = money(p.prix);
+    $('#m-prix-vip').textContent = money(vipPrice(p));
+    var choix = state.offre || 'essentiel';
+    $$('input[name=offre]').forEach(function (r) { r.checked = r.value === choix; });
+    updateModalPrice();
     $('#m-desc').textContent = p.description || '';
     var cols = (p.couleurs && p.couleurs.length ? p.couleurs : ['Noir', 'Marron']).concat(['Autre (préciser)']);
     $('#m-couleur').innerHTML = '<option value="">Choisir…</option>' + cols.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('');
@@ -156,6 +207,13 @@
     document.body.style.overflow = 'hidden';
     setTimeout(function () { $('[name=nom]', form).focus({ preventScroll: true }); }, 50);
   }
+  function updateModalPrice() {
+    if (!current) return;
+    var o = $('input[name=offre]:checked').value;
+    var old = o === 'essentiel' && current.ancienPrix ? ' <s style="color:#9ca3af;font-weight:400;font-size:.9rem">' + money(current.ancienPrix) + '</s>' : '';
+    $('#m-prix').innerHTML = money(offerPrice(current, o)) + old + ' <small style="font-size:.8rem;color:#6b7280;font-weight:500">· ' + esc(o === 'vip' ? vip.nom : ess.nom) + '</small>';
+  }
+  $$('input[name=offre]').forEach(function (r) { r.addEventListener('change', updateModalPrice); });
   function closeModal() {
     modal.hidden = true;
     document.body.style.overflow = '';
@@ -190,12 +248,16 @@
 
     var f = form.elements;
     var qte = Math.max(1, parseInt(f.quantite.value, 10) || 1);
+    var o = $('input[name=offre]:checked').value;
+    var prix = offerPrice(current, o);
+    var offreTxt = o === 'vip' ? vip.nom + ' : ' + (vip.contenu || []).join(', ') : ess.nom + ' (chaussure seule)';
     var lines = [
       '*NOUVELLE COMMANDE — ' + (shop.nom || 'Bloom Shoes').toUpperCase() + '*',
       '',
       '*Produit :* ' + current.nom,
       '*Catégorie :* ' + catName(current.categorie),
-      '*Prix :* ' + money(current.prix) + (qte > 1 ? ' × ' + qte + ' = ' + money((current.prix || 0) * qte) : ''),
+      '*Offre :* ' + offreTxt,
+      '*Prix :* ' + money(prix) + (qte > 1 && prix !== null ? ' × ' + qte + ' = ' + money(prix * qte) : ''),
       '*Couleur :* ' + f.couleur.value,
       '*Pointure :* ' + f.pointure.value,
       '*Quantité :* ' + qte,
@@ -219,6 +281,85 @@
     form.details.value = '';
     toast('Merci ! Votre commande est prête dans WhatsApp, appuyez sur « Envoyer ».');
   });
+
+  /* --- Bandeau d'actualité : met en avant de vrais produits et services de la boutique --- */
+  (function () {
+    var live = $('#live'), body = $('#live-body');
+    var closed = false;
+    try { closed = sessionStorage.getItem('bloom_live_off') === '1'; } catch (e) { /* ignore */ }
+    if (closed || !prods.length) return;
+    var msgs = [];
+    prods.forEach(function (p) {
+      if (p.disponible === false) return;
+      var label = p.badge || 'Disponible';
+      msgs.push({ id: p.id, img: p.image, tag: label, html: '<b>' + esc(p.nom) + '</b> à ' + money(p.prix) + (p.couleurs && p.couleurs.length > 1 ? ', en ' + p.couleurs.length + ' coloris' : '') });
+    });
+    var extra = [
+      { img: 'images/site/favicon.png', tag: vip.nom, html: esc((vip.contenu || []).join(' + ')) + '. <b>Commandez-le en un clic.</b>', go: '#offres' },
+      { img: 'images/site/favicon.png', tag: 'Livraison', html: 'Livraison à Abidjan en <b>' + esc(getPath(shop, 'livraison.abidjan') || '24 à 48 heures') + '</b>.', go: '#offres' },
+      { img: 'images/site/favicon.png', tag: 'Satisfait ou remboursé', html: '<b>' + esc(getPath(shop, 'retours.jours') || 7) + ' jours</b> pour changer d\'avis.', go: 'livraison-retours.html' }
+    ];
+    // Mélange : les produits mis en avant (étiquette) d'abord, puis le reste, avec les infos boutique intercalées
+    msgs.sort(function (a, b) { return (b.tag !== 'Disponible') - (a.tag !== 'Disponible') || Math.random() - .5; });
+    var list = [];
+    msgs.forEach(function (m, i) { list.push(m); if (i % 3 === 1 && extra.length) list.push(extra.shift()); });
+    list = list.concat(extra);
+    var i = 0, timer;
+    function show() {
+      var m = list[i++ % list.length];
+      body.innerHTML = '<img src="' + esc(m.img) + '" alt=""><div><small>' + esc(m.tag) + '</small><p>' + m.html + '</p></div>';
+      body.onclick = function () {
+        if (m.id) openModal(m.id);
+        else if (m.go.charAt(0) === '#') $(m.go).scrollIntoView({ behavior: 'smooth' });
+        else location.href = m.go;
+      };
+      live.classList.remove('is-out');
+      live.hidden = false;
+      live.style.animation = 'none'; void live.offsetWidth; live.style.animation = '';
+      timer = setTimeout(function () {
+        live.classList.add('is-out');
+        timer = setTimeout(show, 5000);
+      }, 7000);
+    }
+    $('.live__close', live).addEventListener('click', function () {
+      clearTimeout(timer);
+      live.hidden = true;
+      try { sessionStorage.setItem('bloom_live_off', '1'); } catch (e) { /* ignore */ }
+    });
+    setTimeout(show, 6000);
+  })();
+
+  /* --- Fenêtre quand le visiteur veut quitter le site (une fois par visite) --- */
+  (function () {
+    var box = $('#exit'), shown = false, start = Date.now();
+    var pop = shop.popup || {};
+    if (pop.titre) $('#exit-titre').textContent = pop.titre;
+    $('#exit-texte').textContent = pop.texte || '';
+    try { shown = sessionStorage.getItem('bloom_exit') === '1'; } catch (e) { /* ignore */ }
+    function open() {
+      if (shown || !modal.hidden || Date.now() - start < 8000) return;
+      shown = true;
+      try { sessionStorage.setItem('bloom_exit', '1'); } catch (e) { /* ignore */ }
+      box.hidden = false;
+    }
+    $$('[data-exit-close]', box).forEach(function (el) { el.addEventListener('click', function () { box.hidden = true; }); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') box.hidden = true; });
+    // Ordinateur : la souris sort par le haut de la fenêtre (vers les onglets / la croix)
+    document.addEventListener('mouseout', function (e) { if (!e.relatedTarget && e.clientY <= 0) open(); });
+    // Téléphone : remontée rapide vers le haut après avoir parcouru la page, ou retour sur l'onglet
+    var samples = [], maxY = 0;
+    window.addEventListener('scroll', function () {
+      var y = window.scrollY, t = Date.now();
+      maxY = Math.max(maxY, y);
+      samples.push([t, y]);
+      while (samples.length && t - samples[0][0] > 500) samples.shift();
+      var up = samples.length ? samples[0][1] - y : 0;
+      if (maxY > window.innerHeight * 1.5 && up > window.innerHeight * 0.9 && y < maxY * 0.6) open();
+    }, { passive: true });
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible' && Date.now() - start > 20000) open();
+    });
+  })();
 
   function toast(msg) {
     var t = $('#toast');

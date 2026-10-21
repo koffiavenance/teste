@@ -5,7 +5,7 @@ window.BLOOM_CATALOGUE = {
     "slogan": "L'élégance qui vous suit à chaque pas.",
     "whatsapp": "2250748110942",
     "telephone": "07 48 11 09 42",
-    "adresse": "Abidjan, Jamé",
+    "adresse": "Abidjan, Adjamé",
     "devise": "FCFA",
     "pointures": [
       38,
@@ -18,7 +18,37 @@ window.BLOOM_CATALOGUE = {
       45,
       46,
       47
-    ]
+    ],
+    "offres": {
+      "essentiel": {
+        "nom": "Offre Essentielle",
+        "description": "La chaussure seule, livrée dans sa boîte."
+      },
+      "vip": {
+        "id": "pack-vip",
+        "nom": "Pack VIP Professionnel",
+        "contenu": [
+          "La chaussure de votre choix",
+          "Une paire de chaussettes assorties",
+          "Un kit cirage complet (cirage, brosse et chiffon)"
+        ],
+        "supplement": 5000,
+        "image": ""
+      }
+    },
+    "livraison": {
+      "abidjan": "24 à 48 heures",
+      "interieur": "2 à 5 jours",
+      "frais": "Les frais de livraison dépendent de votre commune ou de votre ville. Ils vous sont communiqués sur WhatsApp avant la validation de la commande."
+    },
+    "retours": {
+      "jours": 7,
+      "remboursement": "72 heures"
+    },
+    "popup": {
+      "titre": "Attendez, ne partez pas les mains vides !",
+      "texte": "Découvrez notre Pack VIP Professionnel : la chaussure, des chaussettes assorties et un kit cirage complet. Une question ? Nous vous conseillons gratuitement sur WhatsApp."
+    }
   },
   "categories": [
     {
@@ -60,7 +90,8 @@ window.BLOOM_CATALOGUE = {
       ],
       "image": "images/produits/mocassin-penny-cognac-croco.jpg",
       "badge": "Nouveau",
-      "disponible": true
+      "disponible": true,
+      "prixVIP": null
     },
     {
       "id": "mocassin-pompons-bleu-nuit",
@@ -75,7 +106,8 @@ window.BLOOM_CATALOGUE = {
       ],
       "image": "images/produits/mocassin-pompons-bleu-nuit.jpg",
       "badge": "",
-      "disponible": true
+      "disponible": true,
+      "prixVIP": null
     },
     {
       "id": "mocassin-croco-gris",
@@ -90,7 +122,8 @@ window.BLOOM_CATALOGUE = {
       ],
       "image": "images/produits/mocassin-croco-gris.jpg",
       "badge": "",
-      "disponible": true
+      "disponible": true,
+      "prixVIP": null
     },
     {
       "id": "mocassin-lacet-vert-olive",
@@ -105,7 +138,8 @@ window.BLOOM_CATALOGUE = {
       ],
       "image": "images/produits/mocassin-lacet-vert-olive.jpg",
       "badge": "",
-      "disponible": true
+      "disponible": true,
+      "prixVIP": null
     },
     {
       "id": "mocassin-penny-noir-croco",
@@ -119,7 +153,8 @@ window.BLOOM_CATALOGUE = {
       ],
       "image": "images/produits/mocassin-penny-noir-croco.jpg",
       "badge": "",
-      "disponible": true
+      "disponible": true,
+      "prixVIP": null
     },
     {
       "id": "mocassin-lacet-rouge-bandes",
@@ -133,7 +168,8 @@ window.BLOOM_CATALOGUE = {
       ],
       "image": "images/produits/mocassin-lacet-rouge-bandes.jpg",
       "badge": "Édition limitée",
-      "disponible": true
+      "disponible": true,
+      "prixVIP": null
     },
     {
       "id": "mocassin-lacet-bleu-tricolore",
@@ -147,7 +183,8 @@ window.BLOOM_CATALOGUE = {
       ],
       "image": "images/produits/mocassin-lacet-bleu-tricolore.jpg",
       "badge": "",
-      "disponible": true
+      "disponible": true,
+      "prixVIP": null
     },
     {
       "id": "mocassin-lacet-noir-croco",
@@ -161,7 +198,8 @@ window.BLOOM_CATALOGUE = {
       ],
       "image": "images/produits/mocassin-lacet-noir-croco.jpg",
       "badge": "",
-      "disponible": true
+      "disponible": true,
+      "prixVIP": null
     },
     {
       "id": "mocassin-lacet-noir-bandes",
@@ -175,7 +213,8 @@ window.BLOOM_CATALOGUE = {
       ],
       "image": "images/produits/mocassin-lacet-noir-bandes.jpg",
       "badge": "",
-      "disponible": true
+      "disponible": true,
+      "prixVIP": null
     },
     {
       "id": "mocassin-daim-bleu-ciel",
@@ -191,7 +230,8 @@ window.BLOOM_CATALOGUE = {
       ],
       "image": "images/produits/mocassin-daim-bleu-ciel.jpg",
       "badge": "",
-      "disponible": true
+      "disponible": true,
+      "prixVIP": null
     },
     {
       "id": "mocassin-daim-bleu-roi",
@@ -207,7 +247,8 @@ window.BLOOM_CATALOGUE = {
       ],
       "image": "images/produits/mocassin-daim-bleu-roi.jpg",
       "badge": "",
-      "disponible": true
+      "disponible": true,
+      "prixVIP": null
     },
     {
       "id": "loafer-daim-bleu-nuit",
@@ -222,7 +263,8 @@ window.BLOOM_CATALOGUE = {
       ],
       "image": "images/produits/loafer-daim-bleu-nuit.jpg",
       "badge": "",
-      "disponible": true
+      "disponible": true,
+      "prixVIP": null
     },
     {
       "id": "loafer-daim-noir",
@@ -236,7 +278,8 @@ window.BLOOM_CATALOGUE = {
       ],
       "image": "images/produits/loafer-daim-noir.jpg",
       "badge": "",
-      "disponible": true
+      "disponible": true,
+      "prixVIP": null
     },
     {
       "id": "loafer-cuir-cognac",
@@ -252,7 +295,8 @@ window.BLOOM_CATALOGUE = {
       ],
       "image": "images/produits/loafer-cuir-cognac.jpg",
       "badge": "Best-seller",
-      "disponible": true
+      "disponible": true,
+      "prixVIP": null
     },
     {
       "id": "loafer-python-noir",
@@ -266,7 +310,8 @@ window.BLOOM_CATALOGUE = {
       ],
       "image": "images/produits/loafer-python-noir.jpg",
       "badge": "",
-      "disponible": true
+      "disponible": true,
+      "prixVIP": null
     },
     {
       "id": "richelieu-noir-medaillon",
@@ -281,7 +326,8 @@ window.BLOOM_CATALOGUE = {
       ],
       "image": "images/produits/richelieu-noir-medaillon.jpg",
       "badge": "",
-      "disponible": true
+      "disponible": true,
+      "prixVIP": null
     },
     {
       "id": "richelieu-wholecut-noir",
@@ -296,7 +342,8 @@ window.BLOOM_CATALOGUE = {
       ],
       "image": "images/produits/richelieu-wholecut-noir.jpg",
       "badge": "",
-      "disponible": true
+      "disponible": true,
+      "prixVIP": null
     },
     {
       "id": "bottine-chelsea-noire",
@@ -311,7 +358,8 @@ window.BLOOM_CATALOGUE = {
       ],
       "image": "images/produits/bottine-chelsea-noire.jpg",
       "badge": "Coup de cœur",
-      "disponible": true
+      "disponible": true,
+      "prixVIP": null
     }
   ]
 };

@@ -106,6 +106,7 @@
           '<label>Catégorie<select data-k="categorie">' + catOptions(p.categorie) + '</select></label>' +
           '<label class="half">Prix (' + esc(data.boutique.devise || 'FCFA') + ')<input data-k="prix" type="number" min="0" step="500" value="' + esc(p.prix) + '"></label>' +
           '<label class="half">Ancien prix (promo)<input data-k="ancienPrix" type="number" min="0" step="500" value="' + esc(p.ancienPrix) + '" placeholder="Optionnel"></label>' +
+          '<label class="w3">Prix Pack VIP (chaussure + chaussettes + kit cirage)<input data-k="prixVIP" type="number" min="0" step="500" value="' + esc(p.prixVIP) + '" placeholder="' + esc(vipPlaceholder(p)) + '"></label>' +
           '<label class="w3">Couleurs disponibles (séparées par des virgules)<input data-k="couleurs" value="' + esc((p.couleurs || []).join(', ')) + '"></label>' +
           '<label class="half">Étiquette<input data-k="badge" value="' + esc(p.badge) + '" placeholder="Nouveau, Promo…"></label>' +
           '<label class="check half"><input type="checkbox" data-k="disponible"' + (p.disponible !== false ? ' checked' : '') + '> En stock</label>' +
@@ -117,6 +118,10 @@
         '</div></article>';
     }).join('') || '<p class="counter">Aucun produit. Cliquez sur « Ajouter un produit ».</p>';
   }
+  function vipPlaceholder(p) {
+    var sup = Number((((data.boutique.offres || {}).vip || {}).supplement) || 0);
+    return p.prix ? 'Vide = ' + (Number(p.prix) + sup).toLocaleString('fr-FR') + ' (prix + supplément)' : 'Prix + supplément VIP';
+  }
   function findProd(el) {
     var id = el.closest('.item').dataset.id;
     return data.produits.find(function (p) { return p.id === id; });
@@ -124,7 +129,7 @@
   $('#prod-list').addEventListener('input', function (e) {
     var k = e.target.dataset.k; if (!k) return;
     var p = findProd(e.target), v = e.target.value;
-    if (k === 'prix' || k === 'ancienPrix') p[k] = v === '' ? null : Number(v);
+    if (k === 'prix' || k === 'ancienPrix' || k === 'prixVIP') p[k] = v === '' ? null : Number(v);
     else if (k === 'couleurs') p[k] = v.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
     else if (k === 'disponible') p[k] = e.target.checked;
     else p[k] = v;
@@ -223,27 +228,81 @@
   });
 
   /* --- Infos boutique --- */
-  var infoFields = [
-    ['nom', 'Nom de la boutique', 'w3'],
-    ['whatsapp', 'Numéro WhatsApp qui reçoit les commandes (format international, ex. 2250748110942)', 'w3'],
-    ['telephone', 'Téléphone affiché sur le site', 'w3'],
-    ['adresse', 'Adresse', 'w3'],
-    ['devise', 'Devise', ''],
-    ['pointures', 'Pointures proposées (séparées par des virgules)', 'w6']
+  // [chemin, libellé, largeur, type]
+  var infoGroups = [
+    ['Boutique', [
+      ['nom', 'Nom de la boutique', 'w3'],
+      ['whatsapp', 'Numéro WhatsApp qui reçoit les commandes (format international, ex. 2250748110942)', 'w3'],
+      ['telephone', 'Téléphone affiché sur le site', 'w3'],
+      ['adresse', 'Adresse', 'w3'],
+      ['devise', 'Devise', ''],
+      ['pointures', 'Pointures proposées (séparées par des virgules)', 'w6', 'list']
+    ]],
+    ['Offre n°1 — chaussure seule', [
+      ['offres.essentiel.nom', 'Nom de l\'offre', 'w3'],
+      ['offres.essentiel.description', 'Petite description', 'w3']
+    ]],
+    ['Offre n°2 — Pack VIP', [
+      ['offres.vip.nom', 'Nom du pack', 'w3'],
+      ['offres.vip.supplement', 'Supplément ajouté au prix de la chaussure, si le « Prix Pack VIP » du produit est vide', 'w3', 'number'],
+      ['offres.vip.contenu', 'Contenu du pack (une ligne par élément)', 'w6', 'lines'],
+      ['offres.vip.image', 'Photo du pack (optionnelle)', 'w6', 'image']
+    ]],
+    ['Livraison & remboursement', [
+      ['livraison.abidjan', 'Délai de livraison à Abidjan', 'w3'],
+      ['livraison.interieur', 'Délai pour l\'intérieur du pays', 'w3'],
+      ['livraison.frais', 'Frais de livraison (texte affiché)', 'w6', 'text'],
+      ['retours.jours', 'Délai pour retourner / échanger (en jours)', 'w3', 'number'],
+      ['retours.remboursement', 'Délai de remboursement', 'w3']
+    ]],
+    ['Fenêtre « avant de partir »', [
+      ['popup.titre', 'Titre', 'w6'],
+      ['popup.texte', 'Message', 'w6', 'text']
+    ]]
   ];
+  function getPath(obj, path) {
+    return path.split('.').reduce(function (o, k) { return o == null ? undefined : o[k]; }, obj);
+  }
+  function setPath(obj, path, v) {
+    var keys = path.split('.'), last = keys.pop();
+    keys.forEach(function (k) { if (!obj[k] || typeof obj[k] !== 'object') obj[k] = {}; obj = obj[k]; });
+    obj[last] = v;
+  }
   function renderInfos() {
     var b = data.boutique;
-    $('#infos').innerHTML = infoFields.map(function (f) {
-      var v = f[0] === 'pointures' ? (b.pointures || []).join(', ') : b[f[0]];
-      return '<label class="' + f[2] + '">' + esc(f[1]) + '<input data-k="' + f[0] + '" value="' + esc(v) + '"></label>';
+    $('#infos').innerHTML = infoGroups.map(function (g) {
+      return '<h3 class="w6" style="grid-column:1/-1;font-size:1.1rem;margin:1.2rem 0 0">' + esc(g[0]) + '</h3>' + g[1].map(function (f) {
+        var v = getPath(b, f[0]), t = f[3];
+        if (t === 'list') v = (v || []).join(', ');
+        if (t === 'lines') return '<label class="' + f[2] + '">' + esc(f[1]) + '<textarea data-k="' + f[0] + '" data-t="lines" rows="3">' + esc((v || []).join('\n')) + '</textarea></label>';
+        if (t === 'text') return '<label class="' + f[2] + '">' + esc(f[1]) + '<textarea data-k="' + f[0] + '" rows="2">' + esc(v) + '</textarea></label>';
+        if (t === 'image') return '<label class="' + f[2] + '">' + esc(f[1]) +
+          '<span style="display:flex;gap:.8rem;align-items:center">' + (v ? '<img src="' + esc(v) + '" alt="" style="width:90px;height:90px;object-fit:cover;border-radius:10px">' : '<em style="font-style:normal;color:#9ca3af">Aucune photo : des icônes sont affichées.</em>') +
+          '<input type="file" accept="image/*" data-k="' + f[0] + '" data-t="image" style="width:auto">' +
+          (v ? '<button type="button" class="mini mini--danger" data-clear="' + f[0] + '">Retirer</button>' : '') + '</span></label>';
+        return '<label class="' + f[2] + '">' + esc(f[1]) + '<input data-k="' + f[0] + '"' + (t ? ' data-t="' + t + '"' : '') + (t === 'number' ? ' type="number" min="0"' : '') + ' value="' + esc(v) + '"></label>';
+      }).join('');
     }).join('');
   }
   $('#infos').addEventListener('input', function (e) {
-    var k = e.target.dataset.k, v = e.target.value;
-    if (k === 'pointures') data.boutique.pointures = v.split(',').map(function (s) { return s.trim(); }).filter(Boolean).map(function (s) { return isNaN(s) ? s : Number(s); });
-    else if (k === 'whatsapp') data.boutique.whatsapp = v.replace(/\D/g, '');
-    else data.boutique[k] = v;
+    var k = e.target.dataset.k, t = e.target.dataset.t, v = e.target.value;
+    if (!k || t === 'image') return;
+    if (k === 'pointures') v = v.split(',').map(function (s) { return s.trim(); }).filter(Boolean).map(function (s) { return isNaN(s) ? s : Number(s); });
+    else if (k === 'whatsapp') v = v.replace(/\D/g, '');
+    else if (t === 'number') v = v === '' ? 0 : Number(v);
+    else if (t === 'lines') v = v.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+    setPath(data.boutique, k, v);
     save();
+    if (k === 'offres.vip.supplement') renderProducts();
+  });
+  $('#infos').addEventListener('change', function (e) {
+    if (e.target.dataset.t !== 'image') return;
+    var k = e.target.dataset.k;
+    readImage(e.target.files[0], function (url) { setPath(data.boutique, k, url); save(); renderInfos(); toast('Photo mise à jour.'); });
+  });
+  $('#infos').addEventListener('click', function (e) {
+    var k = e.target.dataset.clear; if (!k) return;
+    setPath(data.boutique, k, ''); save(); renderInfos();
   });
 
   /* --- Fichier catalogue --- */
@@ -317,6 +376,13 @@
     return btoa(bin);
   }
 
+  function imageHolders(d) {
+    var list = d.produits.concat(d.categories);
+    var vip = d.boutique.offres && d.boutique.offres.vip;
+    if (vip) { vip.id = vip.id || 'pack-vip'; list.push(vip); }
+    return list;
+  }
+
   var publishing = false;
   function publish() {
     if (publishing) return;
@@ -331,7 +397,7 @@
     $('#log').textContent = '';
     var out = clone(data);
     var uploads = [];
-    out.produits.concat(out.categories).forEach(function (it) {
+    imageHolders(out).forEach(function (it) {
       if (it.image && it.image.indexOf('data:') === 0) uploads.push(it);
     });
     log('Envoi de ' + uploads.length + ' nouvelle(s) image(s)…');
@@ -360,8 +426,8 @@
       if (/Not Found|404/.test(err.message)) log('  → Vérifiez le compte, le dépôt, la branche et les droits de la clé.');
       // Les images déjà envoyées restent valables : on garde leur chemin pour ne pas les renvoyer
       var byId = {};
-      out.produits.concat(out.categories).forEach(function (it) { byId[it.id] = it.image; });
-      data.produits.concat(data.categories).forEach(function (it) { if (byId[it.id] && byId[it.id].indexOf('data:') !== 0) it.image = byId[it.id]; });
+      imageHolders(out).forEach(function (it) { byId[it.id] = it.image; });
+      imageHolders(data).forEach(function (it) { if (byId[it.id] && byId[it.id].indexOf('data:') !== 0) it.image = byId[it.id]; });
       save();
       toast('La publication a échoué, voir le détail dans l\'onglet Publication.');
       $$('.a-tab').forEach(function (x) { if (x.dataset.tab === 'publier') x.click(); });
