@@ -7,7 +7,16 @@ Site de vente de chaussures en cuir pour homme (Abidjan, Adjamé). Les commandes
 | Page | Rôle |
 |------|------|
 | `index.html` | Le site pour les clients : vitrine animée, catégories, boutique, formulaire de commande, guide des pointures, contact. |
-| `admin.html` | L'administration : modifier les produits (image, nom, prix, description, couleurs), les catégories et les infos de la boutique. |
+| `admin.html` | L'administration : produits (image, nom, prix, prix Pack VIP, description, couleurs), catégories, offres, livraison, remboursement, fenêtre « avant de partir ». |
+| `livraison-retours.html` | Conditions de livraison, d'échange et de remboursement (délais réglables dans l'administration). |
+| `politique-confidentialite.html` | Politique de confidentialité. |
+
+## Les 2 offres
+
+- **Offre n°1 — Essentielle** : la chaussure seule, au prix du produit.
+- **Offre n°2 — Pack VIP Professionnel** : chaussure + chaussettes + kit cirage.
+  - Champ « Prix Pack VIP » **vide** → prix calculé automatiquement : prix de la chaussure + supplément (réglable dans *Offres & infos*, 5 000 FCFA au départ).
+  - Champ « Prix Pack VIP » **rempli** → ce prix fixe est utilisé, il ne suit plus le prix de la chaussure.
 
 ## Comment un client commande
 
