@@ -12,6 +12,16 @@
     if (saved && saved.produits) data = saved;
   } catch (e) { /* stockage indisponible */ }
 
+  // Brouillon créé avant une mise à jour du site : on ajoute les nouveaux réglages sans toucher aux modifications
+  (function migrate(dst, src) {
+    Object.keys(src).forEach(function (k) {
+      if (dst[k] === undefined) dst[k] = clone(src[k]);
+      else if (src[k] && typeof src[k] === 'object' && !Array.isArray(src[k]) && dst[k] && typeof dst[k] === 'object') migrate(dst[k], src[k]);
+    });
+  })(data.boutique = data.boutique || {}, live.boutique || {});
+  if (data.boutique.adresse === 'Abidjan, Jamé') data.boutique.adresse = live.boutique.adresse;
+  data.produits.forEach(function (p) { if (p.prixVIP === undefined) p.prixVIP = null; });
+
   var $ = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
 
