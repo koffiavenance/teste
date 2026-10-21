@@ -77,7 +77,20 @@
         var ctx = c.getContext('2d');
         ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
         ctx.drawImage(img, 0, 0, c.width, c.height);
-        cb(c.toDataURL('image/jpeg', 0.82));
+        if (data.boutique.filigrane === false) { cb(c.toDataURL('image/jpeg', 0.82)); return; }
+        // Logo Bloom Shoes ajouté automatiquement en bas à droite (mêmes proportions que les photos d'origine)
+        var mark = new Image();
+        mark.onload = function () {
+          var lw = Math.round(c.width * 0.30), lh = Math.round(lw * mark.height / mark.width), mg = Math.round(c.width * 0.025);
+          var x = c.width - lw - mg, y = c.height - lh - mg;
+          ctx.save();
+          ctx.shadowColor = 'rgba(0,0,0,.3)'; ctx.shadowBlur = 12; ctx.shadowOffsetY = 4;
+          ctx.drawImage(mark, x, y, lw, lh);
+          ctx.restore();
+          cb(c.toDataURL('image/jpeg', 0.82));
+        };
+        mark.onerror = function () { cb(c.toDataURL('image/jpeg', 0.82)); };
+        mark.src = 'images/site/filigrane.png';
       };
       img.src = reader.result;
     };
@@ -246,7 +259,8 @@
       ['telephone', 'Téléphone affiché sur le site', 'w3'],
       ['adresse', 'Adresse', 'w3'],
       ['devise', 'Devise', ''],
-      ['pointures', 'Pointures proposées (séparées par des virgules)', 'w6', 'list']
+      ['pointures', 'Pointures proposées (séparées par des virgules)', 'w6', 'list'],
+      ['filigrane', 'Ajouter automatiquement mon logo Bloom Shoes sur chaque nouvelle photo', 'w6', 'bool']
     ]],
     ['Offre n°1 — chaussure seule', [
       ['offres.essentiel.nom', 'Nom de l\'offre', 'w3'],
@@ -290,6 +304,7 @@
       return '<h3 class="w6" style="grid-column:1/-1;font-size:1.1rem;margin:1.2rem 0 0">' + esc(g[0]) + '</h3>' + g[1].map(function (f) {
         var v = getPath(b, f[0]), t = f[3];
         if (t === 'list') v = (v || []).join(', ');
+        if (t === 'bool') return '<label class="check ' + f[2] + '"><input type="checkbox" data-k="' + f[0] + '" data-t="bool"' + (v !== false ? ' checked' : '') + '> ' + esc(f[1]) + '</label>';
         if (t === 'lines') return '<label class="' + f[2] + '">' + esc(f[1]) + '<textarea data-k="' + f[0] + '" data-t="lines" rows="3">' + esc((v || []).join('\n')) + '</textarea></label>';
         if (t === 'text') return '<label class="' + f[2] + '">' + esc(f[1]) + '<textarea data-k="' + f[0] + '" rows="2">' + esc(v) + '</textarea></label>';
         if (t === 'image') return '<label class="' + f[2] + '">' + esc(f[1]) +
@@ -303,6 +318,7 @@
   $('#infos').addEventListener('input', function (e) {
     var k = e.target.dataset.k, t = e.target.dataset.t, v = e.target.value;
     if (!k || t === 'image') return;
+    if (t === 'bool') { setPath(data.boutique, k, e.target.checked); save(); return; }
     if (k === 'pointures') v = v.split(',').map(function (s) { return s.trim(); }).filter(Boolean).map(function (s) { return isNaN(s) ? s : Number(s); });
     else if (k === 'whatsapp') v = v.replace(/\D/g, '');
     else if (t === 'number') v = v === '' ? 0 : Number(v);
