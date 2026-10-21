@@ -84,6 +84,20 @@ window.BLOOM_CATALOGUE = {
   ],
   "produits": [
     {
+      "id": "nouveau-produit-tb4z",
+      "nom": "Nouveau produit",
+      "categorie": "mocassins-conduite",
+      "prix": null,
+      "ancienPrix": null,
+      "description": "",
+      "couleurs": [
+        "Noir"
+      ],
+      "image": "images/site/favicon.png",
+      "badge": "Nouveau",
+      "disponible": true
+    },
+    {
       "id": "mocassin-penny-cognac-croco",
       "nom": "Mocassin Penny Cognac",
       "categorie": "mocassins-conduite",
