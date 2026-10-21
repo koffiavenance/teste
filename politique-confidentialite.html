@@ -64,7 +64,12 @@
         <p>Nous conservons l'historique de vos commandes le temps nécessaire au suivi (livraison, échange, remboursement, garantie), puis au maximum 3 ans après votre dernier achat, sauf obligation légale contraire.</p>
 
         <h2>7. Cookies et statistiques</h2>
-        <p>Le site n'utilise <b>aucun cookie publicitaire</b> ni outil de suivi. Pour fonctionner, il est hébergé par GitHub Pages et affiche ses polices d'écriture via Google Fonts : ces services peuvent recevoir votre adresse IP de façon technique, comme pour tout site internet.</p>
+        <p data-suivi="non">Le site n'utilise <b>aucun cookie publicitaire</b> ni outil de suivi.</p>
+        <div data-suivi="oui" hidden>
+          <p>Avec votre accord (bandeau affiché lors de votre première visite), le site utilise des outils de mesure et de publicité : <span data-suivi-liste></span>. Ils nous permettent de savoir combien de personnes visitent le site, quels modèles les intéressent et si nos publicités sur ces plateformes sont efficaces. Ils enregistrent des informations comme les pages vues, les produits consultés et l'envoi d'une commande, mais <b>jamais votre nom ni votre numéro de téléphone</b>.</p>
+          <p>Si vous refusez, aucun de ces outils n'est chargé. Vous pouvez changer d'avis à tout moment : <button type="button" class="mini" data-reset-consent>modifier mon choix</button></p>
+        </div>
+        <p>Pour fonctionner, il est hébergé par GitHub Pages et affiche ses polices d'écriture via Google Fonts : ces services peuvent recevoir votre adresse IP de façon technique, comme pour tout site internet.</p>
 
         <h2>8. Vos droits</h2>
         <p>Conformément à la loi ivoirienne n° 2013-450 du 19 juin 2013 relative à la protection des données à caractère personnel, vous pouvez à tout moment demander à consulter, corriger ou supprimer vos informations, ou vous opposer à leur utilisation. Il suffit de nous écrire sur WhatsApp. Vous pouvez également saisir l'ARTCI (Autorité de Régulation des Télécommunications/TIC de Côte d'Ivoire).</p>
@@ -89,6 +94,7 @@
   </svg>
 
   <script src="data/catalogue.js"></script>
+  <script src="assets/js/tracking.js"></script>
   <script src="assets/js/pages.js"></script>
 </body>
 </html>

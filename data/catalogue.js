@@ -48,6 +48,12 @@ window.BLOOM_CATALOGUE = {
     "popup": {
       "titre": "Attendez, ne partez pas les mains vides !",
       "texte": "Découvrez notre Pack VIP Professionnel : la chaussure, des chaussettes assorties et un kit cirage complet. Une question ? Nous vous conseillons gratuitement sur WhatsApp."
+    },
+    "suivi": {
+      "google": "",
+      "googleAdsConversion": "",
+      "meta": "",
+      "tiktok": ""
     }
   },
   "categories": [

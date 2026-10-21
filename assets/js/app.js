@@ -3,6 +3,7 @@
   'use strict';
 
   var DRAFT_KEY = 'bloom_brouillon';
+  var track = function (n, d) { if (window.bloomTrack) window.bloomTrack(n, d); };
   var data = window.BLOOM_CATALOGUE;
   var preview = /[?&]apercu=1/.test(location.search);
 
@@ -62,6 +63,7 @@
 
   /* --- Infos boutique --- */
   $$('[data-wa]').forEach(function (a) {
+    a.addEventListener('click', function () { track('contact'); });
     a.href = waLink('Bonjour ' + (shop.nom || 'Bloom Shoes') + ', je souhaite avoir des informations sur vos chaussures.');
   });
   $$('[data-tel]').forEach(function (el) { el.textContent = shop.telephone || ''; });
@@ -184,6 +186,7 @@
     var p = prods.find(function (x) { return x.id === id; });
     if (!p) return;
     current = p;
+    track('voir_produit', { id: p.id, nom: p.nom, prix: p.prix });
     lastFocus = document.activeElement;
     $('#m-img').src = p.image;
     $('#m-img').alt = p.nom;
@@ -276,6 +279,7 @@
       localStorage.setItem(CLIENT_KEY, JSON.stringify({ nom: f.nom.value, prenom: f.prenom.value, telephone: f.telephone.value, ville: f.ville.value }));
     } catch (err) { /* ignore */ }
 
+    track('commande', { id: current.id, nom: current.nom + ' — ' + (o === 'vip' ? vip.nom : ess.nom), prix: (prix || 0) * qte });
     window.open(waLink(lines.join('\n')), '_blank', 'noopener');
     closeModal();
     form.details.value = '';

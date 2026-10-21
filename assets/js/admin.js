@@ -265,6 +265,12 @@
       ['retours.jours', 'Délai pour retourner / échanger (en jours)', 'w3', 'number'],
       ['retours.remboursement', 'Délai de remboursement', 'w3']
     ]],
+    ['Publicité & statistiques (laisser vide si vous ne les utilisez pas)', [
+      ['suivi.google', 'Google Analytics : identifiant de mesure (G-XXXXXXX)', 'w3'],
+      ['suivi.googleAdsConversion', 'Google Ads : conversion « commande » (AW-123456789/AbCdEf)', 'w3'],
+      ['suivi.meta', 'Pixel Meta / Facebook (numéro, ex. 1234567890123456)', 'w3'],
+      ['suivi.tiktok', 'Pixel TikTok (ex. C1AB2CD3EF4GH5IJ6KL7)', 'w3']
+    ]],
     ['Fenêtre « avant de partir »', [
       ['popup.titre', 'Titre', 'w6'],
       ['popup.texte', 'Message', 'w6', 'text']
