@@ -1,0 +1,322 @@
+<title>Boutiq Démo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+/* Concept : une seule colonne mobile (max 480px) ; barre de démo en haut pour passer de la page client au tableau de bord vendeur. */
+:root{
+  --primary:#7C3AED; --primary-hover:#6D28D9; --primary-soft:#EDE9FE; --on-primary:#FFFFFF;
+  --bg:#FAF9FB; --surface:#FFFFFF; --muted:#F1EFF4; --border:#E4E0EA;
+  --fg:#17141F; --fg-soft:#6A6478;
+  --good:#15803D; --good-soft:#DCFCE7; --warn:#B45309; --warn-soft:#FEF3C7; --bad:#B91C1C; --bad-soft:#FEE2E2;
+  --font-display:"Bricolage Grotesque","DM Sans",system-ui,sans-serif;
+  --font-body:"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --primary:#A78BFA; --primary-hover:#C4B5FD; --primary-soft:#2B1B5A; --on-primary:#1B1238;
+  --bg:#0F0E15; --surface:#181723; --muted:#201F2E; --border:#2C2A3D; --fg:#F2F0F7; --fg-soft:#A09AB2;
+  --good:#4ADE80; --good-soft:#12301E; --warn:#FBBF24; --warn-soft:#33260B; --bad:#F87171; --bad-soft:#3A1414; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --primary:#A78BFA; --primary-hover:#C4B5FD; --primary-soft:#2B1B5A; --on-primary:#1B1238;
+  --bg:#0F0E15; --surface:#181723; --muted:#201F2E; --border:#2C2A3D; --fg:#F2F0F7; --fg-soft:#A09AB2;
+  --good:#4ADE80; --good-soft:#12301E; --warn:#FBBF24; --warn-soft:#33260B; --bad:#F87171; --bad-soft:#3A1414; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 var(--font-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 110px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--surface);z-index:30}
+.wrap{max-width:480px;margin:0 auto}
+h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance;line-height:1.15}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+
+/* barre de démo */
+.demo{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--border);
+  margin-inline:calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:8px max(16px,env(safe-area-inset-left,0px))}
+.demo .wrap{display:flex;gap:6px;align-items:center}
+.demo b{font-family:var(--font-display);font-size:15px;margin-right:auto;color:var(--primary)}
+.tab{border:1px solid var(--border);background:var(--muted);border-radius:999px;padding:6px 12px;font-size:14px;cursor:pointer;min-height:36px}
+.tab[aria-current="page"]{background:var(--primary);color:var(--on-primary);border-color:var(--primary);font-weight:700}
+.note{font-size:12px;color:var(--fg-soft);margin:10px 0 0}
+
+section.view{display:none;padding-top:14px}
+section.view.on{display:block}
+.stack{display:flex;flex-direction:column;gap:14px}
+
+/* galerie */
+.gallery{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:8px;border-radius:16px;scrollbar-width:none}
+.gallery::-webkit-scrollbar{display:none}
+.slide{flex:0 0 100%;scroll-snap-align:center;aspect-ratio:1;border-radius:16px;display:grid;place-items:center;position:relative;color:#fff;font-family:var(--font-display);font-weight:800;font-size:20px;text-align:center;padding:20px}
+.s1{background:linear-gradient(135deg,#7C3AED,#C084FC 60%,#FBBF24)}.s2{background:linear-gradient(160deg,#1E1B4B,#4C1D95)}.s3{background:linear-gradient(200deg,#F59E0B,#7C3AED)}
+.slide small{display:block;font:500 12px var(--font-body);opacity:.85;margin-top:6px}
+.badge-off{position:absolute;top:12px;left:12px;background:var(--bad);color:#fff;border-radius:8px;padding:4px 10px;font:800 15px var(--font-display)}
+.dots{display:flex;gap:6px;justify-content:center}.dots i{width:7px;height:7px;border-radius:50%;background:var(--border)}.dots i.on{background:var(--primary)}
+
+.rating{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--fg-soft)}
+.stars{color:#F59E0B;letter-spacing:1px}
+.price{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.price strong{font:800 28px var(--font-display);color:var(--primary)}
+.price s{color:var(--fg-soft)}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700}
+.pill.good{background:var(--good-soft);color:var(--good)}.pill.warn{background:var(--warn-soft);color:var(--warn)}.pill.bad{background:var(--bad-soft);color:var(--bad)}.pill.brand{background:var(--primary-soft);color:var(--primary)}
+ul.check{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ul.check li{padding-left:28px;position:relative}
+ul.check li::before{content:"✓";position:absolute;left:0;top:0;width:20px;height:20px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center;font-size:12px;font-weight:800;margin-top:2px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px}
+.urgency{display:grid;gap:8px}
+.timer{display:flex;gap:6px;font:800 22px var(--font-display);font-variant-numeric:tabular-nums}
+.timer span{background:var(--fg);color:var(--bg);border-radius:8px;padding:2px 8px}
+.bar{height:8px;border-radius:99px;background:var(--muted);overflow:hidden}.bar i{display:block;height:100%;background:var(--warn);width:18%}
+
+/* bundles */
+.bundles{display:grid;gap:10px;border:0;padding:0;margin:0}
+.bundle{position:relative;display:flex;gap:12px;align-items:center;border:2px solid var(--border);background:var(--surface);border-radius:14px;padding:14px;cursor:pointer;min-height:64px}
+.bundle:has(input:checked){border-color:var(--primary);background:var(--primary-soft)}
+.bundle input{accent-color:var(--primary);width:20px;height:20px}
+.bundle .t{flex:1;min-width:0}.bundle .t b{display:block}.bundle .t span{font-size:13px;color:var(--fg-soft)}
+.bundle .p{font:800 17px var(--font-display);font-variant-numeric:tabular-nums;text-align:right}
+.ribbon{position:absolute;top:-10px;right:12px;font-size:11px;font-weight:800;background:var(--primary);color:var(--on-primary);border-radius:6px;padding:2px 8px}
+
+.steps{display:grid;gap:12px;margin:0;padding:0;list-style:none}
+.steps li{display:flex;gap:12px}.steps em{flex:none;width:30px;height:30px;border-radius:50%;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;font:800 14px var(--font-display);font-style:normal}
+details{border-bottom:1px solid var(--border);padding:12px 0}summary{cursor:pointer;font-weight:700;min-height:28px}details p{margin:8px 0 0;color:var(--fg-soft)}
+.review{border-top:1px solid var(--border);padding-top:12px}.review:first-of-type{border:0;padding:0}
+
+/* CTA collant */
+.sticky{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--surface);border-top:1px solid var(--border);
+  padding:10px max(16px,env(safe-area-inset-left,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.sticky .wrap{display:flex;gap:8px}
+.btn{min-height:50px;border:0;border-radius:12px;font-weight:800;cursor:pointer;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn.primary{background:var(--primary);color:var(--on-primary);flex:1}.btn.primary:hover{background:var(--primary-hover)}
+.btn.wa{background:#16A34A;color:#fff}
+.btn.ghost{background:var(--muted)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+
+/* formulaire */
+label{font-weight:700;font-size:14px;display:block;margin-bottom:6px}
+input[type=text],input[type=tel],select{width:100%;min-height:50px;border:1.5px solid var(--border);background:var(--surface);color:var(--fg);border-radius:12px;padding:0 14px;font:inherit}
+input[aria-invalid=true]{border-color:var(--bad)}
+.err{color:var(--bad);font-size:13px;margin:4px 0 0;min-height:18px}
+.phone{display:grid;grid-template-columns:96px 1fr;gap:8px}
+.sum{display:grid;gap:6px}.sum div{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums}.sum .tot{font:800 20px var(--font-display);border-top:1px dashed var(--border);padding-top:8px;margin-top:4px}
+.lock{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--good)}
+.preview{background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:10px 12px;font-size:14px;font-weight:700}
+.done{text-align:center;padding:24px 8px}.done h2{margin:8px 0}
+
+/* dashboard */
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px;min-width:0}
+.kpi span{font-size:13px;color:var(--fg-soft)}.kpi b{display:block;font:800 22px var(--font-display);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.todo{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.todo li{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+.todo .n{font:800 18px var(--font-display);min-width:34px;text-align:center;border-radius:8px;padding:2px 8px}
+.chart{width:100%;height:auto;display:block}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.tog{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.tog:last-child{border:0}
+.sw{appearance:none;width:46px;height:28px;border-radius:99px;background:var(--border);position:relative;cursor:pointer;flex:none;transition:background .15s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .15s}
+.sw:checked{background:var(--primary)}.sw:checked::after{transform:translateX(18px)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="demo"><div class="wrap">
+  <b>Boutiq</b>
+  <button class="tab" data-go="produit">Client</button>
+  <button class="tab" data-go="commande">Commande</button>
+  <button class="tab" data-go="dashboard">Vendeur</button>
+</div></div>
+
+<div class="wrap">
+<p class="note">Démo interactive : données fictives, rien n'est enregistré. Passe de la page client au tableau de bord pour voir une commande arriver.</p>
+
+<!-- PAGE PRODUIT -->
+<section class="view" id="v-produit"><div class="stack">
+  <div class="gallery" id="gal">
+    <div class="slide s1"><span class="badge-off" id="off">-25%</span><div>Lampe solaire LED<small>Photo produit 1/3</small></div></div>
+    <div class="slide s2"><div>Éclairage 360°<small>Photo produit 2/3</small></div></div>
+    <div class="slide s3"><div>Recharge au soleil<small>Photo produit 3/3</small></div></div>
+  </div>
+  <div class="dots" id="dots"><i class="on"></i><i></i><i></i></div>
+
+  <div class="rating"><span class="stars">★★★★★</span><b style="color:var(--fg)">4,9/5</b> · 238 avis</div>
+  <div class="stack" style="gap:6px">
+    <h1 style="font-size:26px" id="pt">Lampe solaire LED rechargeable 3 en 1</h1>
+    <p style="margin:0;color:var(--fg-soft)">Fini les coupures de courant : 12 h de lumière, chargée par le soleil ou par USB.</p>
+  </div>
+  <div class="price"><strong id="pp">15 000 FCFA</strong><s id="pc">20 000 FCFA</s><span class="pill bad" id="pd">-25%</span></div>
+
+  <ul class="check" data-block="highlights">
+    <li>Jusqu'à 12 heures d'éclairage par charge</li>
+    <li>Résiste à la pluie et à la poussière (IP65)</li>
+    <li>Fait aussi chargeur de téléphone</li>
+    <li>Livrée avec câble USB et crochet</li>
+  </ul>
+
+  <div class="card urgency" data-block="urgency">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><b>L'offre se termine dans</b>
+      <div class="timer" aria-live="off"><span id="th">00</span><span id="tm">00</span><span id="ts">00</span></div></div>
+    <div class="pill brand" style="align-self:start">👀 <span id="viewers">17</span> personnes regardent ce produit</div>
+    <div><div class="pill warn">Plus que 9 unités en stock</div><div class="bar" style="margin-top:8px"><i></i></div></div>
+  </div>
+
+  <fieldset class="bundles" data-block="bundles" id="bundles" style="margin:0">
+    <legend style="font:800 18px var(--font-display);margin-bottom:10px">Choisis ton pack</legend>
+    <label class="bundle"><input type="radio" name="pack" value="1" checked><span class="t"><b>1 lampe</b><span>Prix normal</span></span><span class="p" data-price="1"></span></label>
+    <label class="bundle"><span class="ribbon">Plus populaire</span><input type="radio" name="pack" value="2"><span class="t"><b>Pack de 2</b><span>-10% · économise <span data-save="2"></span></span></span><span class="p" data-price="2"></span></label>
+    <label class="bundle"><span class="ribbon">Meilleure offre</span><input type="radio" name="pack" value="3"><span class="t"><b>Pack de 3</b><span>-15% · économise <span data-save="3"></span></span></span><span class="p" data-price="3"></span></label>
+  </fieldset>
+
+  <div class="card" data-block="delivery"><h3 style="margin-bottom:12px">Comment ça se passe</h3>
+    <ol class="steps"><li><em>1</em><span><b>Remplis le formulaire</b><br>30 secondes, sans payer.</span></li>
+    <li><em>2</em><span><b>On t'appelle et on prépare</b><br>Colis prêt sous 24 h.</span></li>
+    <li><em>3</em><span><b>Tu reçois et tu paies</b><br>À la livraison, chez toi.</span></li></ol></div>
+
+  <div class="card" data-block="guarantee" style="display:flex;gap:12px;align-items:center"><span style="font-size:30px">🛡️</span><div><b>Satisfait ou remboursé 14 jours</b><br><span style="color:var(--fg-soft);font-size:14px">Si la lampe ne te convient pas, on te rembourse.</span></div></div>
+
+  <div class="card stack" data-block="reviews"><h3>Ce que disent nos clients</h3>
+    <div class="review"><span class="stars">★★★★★</span> <b>Awa K.</b> · Abidjan<br>Je l'utilise tous les soirs depuis un mois, elle tient toute la nuit.</div>
+    <div class="review"><span class="stars">★★★★★</span> <b>Moussa D.</b> · Bouaké<br>Livraison en 2 jours, le livreur a attendu que je vérifie le colis.</div>
+    <div class="review"><span class="stars">★★★★☆</span> <b>Fatou S.</b> · Yamoussoukro<br>Bonne luminosité. Le câble est un peu court mais ça marche bien.</div>
+  </div>
+
+  <div class="card" data-block="faq"><h3 style="margin-bottom:6px">Questions fréquentes</h3>
+    <details><summary>Combien de temps pour la livraison ?</summary><p>24 à 48 h à Abidjan, 2 à 4 jours dans les autres villes.</p></details>
+    <details><summary>Je paie quand ?</summary><p>À la livraison, après avoir vérifié le colis.</p></details>
+    <details><summary>Comment la recharger ?</summary><p>Posée au soleil 8 h ou par câble USB en 4 h.</p></details>
+  </div>
+</div></section>
+
+<!-- COMMANDE -->
+<section class="view" id="v-commande"><div class="stack">
+  <h2 style="font-size:24px">Finalise ta commande</h2>
+  <div class="card" style="display:flex;justify-content:space-between;gap:10px;align-items:center"><span><b id="ck-pack">1 lampe</b><br><span style="color:var(--fg-soft);font-size:14px">Lampe solaire LED 3 en 1</span></span><button class="btn ghost" data-go="produit" style="min-height:40px">Modifier</button></div>
+  <div class="preview" id="previewBanner" hidden>Mode prévisualisation : la boutique n'est pas encore activée, la commande est désactivée.</div>
+  <form id="form" class="stack" novalidate>
+    <div><label for="name">Nom complet</label><input id="name" type="text" autocomplete="name" placeholder="Ex : Awa Koné"><p class="err" id="e-name"></p></div>
+    <div><label for="phone">Téléphone</label>
+      <div class="phone"><select id="cc" aria-label="Indicatif"><option>+225</option><option>+221</option><option>+229</option><option>+228</option><option>+237</option></select>
+      <input id="phone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="07 12 34 56 78"></div><p class="err" id="e-phone"></p></div>
+    <div><label for="city">Ville de livraison</label>
+      <select id="city"><option value="">Choisis ta ville</option><option>Abidjan</option><option>Bouaké</option><option>Yamoussoukro</option><option>San-Pédro</option><option>Korhogo</option></select><p class="err" id="e-city"></p></div>
+    <div class="card sum"><div><span>Sous-total</span><span id="r-sub"></span></div><div><span>Livraison</span><span id="r-ship"></span></div><div class="tot"><span>Total à payer</span><span id="r-tot"></span></div></div>
+    <div class="lock">🔒 Paiement à la livraison · 100% sécurisé</div>
+    <input type="text" id="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+    <button class="btn primary" id="submit" type="submit" style="width:100%">Confirmer la commande</button>
+  </form>
+  <div class="card done" id="done" hidden><div style="font-size:42px">✅</div><h2>Commande reçue !</h2><p style="color:var(--fg-soft)">Notre équipe t'appelle dans les prochaines minutes pour confirmer la livraison.</p>
+    <button class="btn primary" data-go="dashboard" style="width:100%">Voir côté vendeur</button></div>
+</div></section>
+
+<!-- DASHBOARD -->
+<section class="view" id="v-dashboard"><div class="stack">
+  <div class="card" id="banner" style="background:var(--warn-soft);border-color:transparent;color:var(--warn)"><b>Ta boutique est inactive</b><br><span style="font-size:14px">Les clients voient la page en prévisualisation. Active-la pour recevoir des commandes.</span><br>
+    <button class="btn primary" id="activate" style="margin-top:10px;min-height:44px">Activer ma boutique</button></div>
+  <div class="seg" role="group" aria-label="Période">
+    <button class="tab" data-per="0" aria-current="page">Aujourd'hui</button><button class="tab" data-per="1">7 jours</button><button class="tab" data-per="2">30 jours</button></div>
+  <div class="kpis">
+    <div class="kpi"><span>Visiteurs en ligne</span><b id="k-live">17</b></div>
+    <div class="kpi"><span>Chiffre d'affaires</span><b id="k-ca"></b></div>
+    <div class="kpi"><span>Commandes</span><b id="k-ord"></b></div>
+    <div class="kpi"><span>Visites</span><b id="k-vis"></b></div>
+    <div class="kpi" style="grid-column:1/-1"><span>Taux de conversion</span><b id="k-cv"></b></div>
+  </div>
+  <div class="card"><b>Commandes sur la période</b>
+    <svg class="chart" id="chart" viewBox="0 0 320 130" role="img" aria-label="Courbe des commandes"></svg></div>
+  <div><h3 style="margin-bottom:10px">À traiter</h3>
+  <ul class="todo">
+    <li><span>À confirmer</span><span class="n pill brand" id="t-new">3</span></li>
+    <li><span>À expédier</span><span class="n pill good" id="t-ship">2</span></li>
+    <li><span>Clients injoignables</span><span class="n pill bad">1</span></li>
+    <li><span>Programmées</span><span class="n pill warn">1</span></li>
+    <li><span>En cours de livraison</span><span class="n pill good">4</span></li></ul></div>
+  <div class="card"><h3 style="margin-bottom:4px">Blocs de la page produit</h3>
+    <p style="margin:0 0 6px;color:var(--fg-soft);font-size:14px">Active ou masque chaque bloc : la page client se met à jour.</p>
+    <div id="toggles"></div></div>
+</div></section>
+</div>
+
+<div class="sticky" id="sticky"><div class="wrap">
+  <a class="btn wa" id="wa" href="https://wa.me/2250700000000?text=Bonjour%2C%20je%20veux%20des%20infos%20sur%20la%20lampe%20solaire" target="_blank" rel="noopener" aria-label="Écrire sur WhatsApp">WhatsApp</a>
+  <button class="btn primary" id="order">Commander maintenant</button></div></div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const UNIT=15000, COMPARE=20000, DISC={1:0,2:10,3:15}, SHIP_FLAT=1500, FREE_ABOVE=30000;
+const fmt=n=>n.toLocaleString("fr-FR").replace(/ | /g," ")+" FCFA";
+const sub=q=>Math.round(UNIT*q*(1-DISC[q]/100));
+const state={pack:1,active:false,newOrders:3,shipped:2,placed:[],period:0};
+
+// navigation (hash = jeton de vue)
+function go(v){
+  if(!["produit","commande","dashboard"].includes(v))v="produit";
+  $$(".view").forEach(s=>s.classList.toggle("on",s.id==="v-"+v));
+  $$(".demo .tab").forEach(t=>t.toggleAttribute("aria-current",t.dataset.go===v)); $$(".demo .tab").forEach(t=>{ if(t.dataset.go===v)t.setAttribute("aria-current","page")});
+  $("#sticky").hidden=v!=="produit";
+  if(v==="commande")renderCheckout();
+  if(v==="dashboard")renderDash();
+  try{history.replaceState(null,"","#"+v)}catch(e){}
+  window.scrollTo(0,0);
+}
+document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)go(g.dataset.go)});
+addEventListener("hashchange",()=>go(location.hash.slice(1)));
+
+// produit
+$("#pd").textContent=$("#off").textContent="-"+Math.round((COMPARE-UNIT)/COMPARE*100)+"%";
+$("#pp").textContent=fmt(UNIT);$("#pc").textContent=fmt(COMPARE);
+[1,2,3].forEach(q=>{$(`[data-price="${q}"]`).textContent=fmt(sub(q));const s=$(`[data-save="${q}"]`);if(s)s.textContent=fmt(UNIT*q-sub(q))});
+$$('input[name=pack]').forEach(r=>r.addEventListener("change",()=>{state.pack=+r.value}));
+$("#order").addEventListener("click",()=>go("commande"));
+$("#gal").addEventListener("scroll",()=>{const i=Math.round($("#gal").scrollLeft/$("#gal").clientWidth);$$("#dots i").forEach((d,k)=>d.classList.toggle("on",k===i))},{passive:true});
+
+// compte à rebours (démo : 2 h)
+let end=Date.now()+2*3600e3+14*60e3;
+setInterval(()=>{let s=Math.max(0,Math.floor((end-Date.now())/1000));const p=n=>String(n).padStart(2,"0");
+  $("#th").textContent=p(Math.floor(s/3600));$("#tm").textContent=p(Math.floor(s%3600/60));$("#ts").textContent=p(s%60)},1000);
+// visiteurs (valeur simulée pour la démo)
+setInterval(()=>{const v=Math.max(8,Math.min(31,+$("#viewers").textContent+Math.round(Math.random()*4-2)));$("#viewers").textContent=v;$("#k-live").textContent=v},4000);
+
+// checkout
+function shipFee(s){return s>=FREE_ABOVE?0:SHIP_FLAT}
+function renderCheckout(){const q=state.pack,s=sub(q);
+  $("#ck-pack").textContent=q===1?"1 lampe":`Pack de ${q} lampes`;
+  $("#r-sub").textContent=fmt(s);$("#r-ship").textContent=shipFee(s)?fmt(shipFee(s)):"Gratuite";$("#r-tot").textContent=fmt(s+shipFee(s));
+  $("#previewBanner").hidden=state.active;$("#submit").disabled=!state.active;
+  $("#form").hidden=false;$("#done").hidden=true;}
+function setErr(id,msg){$("#e-"+id).textContent=msg;$("#"+id).setAttribute("aria-invalid",msg?"true":"false")}
+$("#form").addEventListener("submit",e=>{e.preventDefault();
+  if($("#website").value)return;
+  const name=$("#name").value.trim(),ph=$("#phone").value.replace(/\D/g,""),city=$("#city").value;
+  setErr("name",name.length<2?"Entre ton nom complet.":"");
+  setErr("phone",ph.length<8||ph.length>10?"Numéro invalide : 8 à 10 chiffres.":"");
+  setErr("city",city?"":"Choisis ta ville.");
+  if(name.length<2||ph.length<8||ph.length>10||!city)return;
+  const s=sub(state.pack);state.placed.push({name,total:s+shipFee(s)});state.newOrders++;
+  $("#form").hidden=true;$("#done").hidden=false;window.scrollTo(0,0);});
+
+// dashboard
+const PER=[{vis:412,ord:14,ca:182000,pts:[0,1,1,2,1,3,2,4]},{vis:2860,ord:97,ca:1264000,pts:[8,11,9,15,12,17,14,11]},{vis:11240,ord:388,ca:5020000,pts:[40,52,47,60,58,71,64,66]}];
+function renderDash(){const d=PER[state.period],extra=state.placed.length,extraCa=state.placed.reduce((a,o)=>a+o.total,0);
+  const ord=d.ord+extra,ca=d.ca+extraCa;
+  $("#k-ord").textContent=ord;$("#k-ca").textContent=fmt(ca);$("#k-vis").textContent=d.vis.toLocaleString("fr-FR");
+  $("#k-cv").textContent=(ord/d.vis*100).toFixed(1).replace(".",",")+" %";
+  $("#t-new").textContent=state.newOrders;$("#t-ship").textContent=state.shipped;
+  $("#banner").hidden=state.active;
+  const pts=d.pts.slice();pts[pts.length-1]+=extra;const max=Math.max(...pts)*1.15,W=320,H=130,l=30,b=22,t=8;
+  const x=i=>l+i*(W-l-8)/(pts.length-1),y=v=>H-b-(v/max)*(H-b-t);
+  let g="";for(let k=0;k<=3;k++){const v=Math.round(max/1.15*k/3),yy=y(v);g+=`<line x1="${l}" x2="${W-8}" y1="${yy}" y2="${yy}" stroke="var(--border)"/><text x="${l-5}" y="${yy+4}" text-anchor="end" font-size="10" fill="var(--fg-soft)">${v}</text>`}
+  const line=pts.map((v,i)=>`${i?"L":"M"}${x(i)},${y(v)}`).join(" ");
+  const area=`${line} L${x(pts.length-1)},${H-b} L${x(0)},${H-b} Z`;
+  const lab=["1","2","3","4","5","6","7","8"].map((_,i)=>`<text x="${x(i)}" y="${H-6}" text-anchor="middle" font-size="10" fill="var(--fg-soft)">${state.period===0?(i*3)+"h":"J"+(i+1)}</text>`).join("");
+  $("#chart").innerHTML=g+`<path d="${area}" fill="var(--primary)" fill-opacity=".14"/><path d="${line}" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linejoin="round"/><circle cx="${x(pts.length-1)}" cy="${y(pts[pts.length-1])}" r="4.5" fill="var(--primary)"/>`+lab;}
+$$("[data-per]").forEach(b=>b.addEventListener("click",()=>{state.period=+b.dataset.per;$$("[data-per]").forEach(x=>x.removeAttribute("aria-current"));b.setAttribute("aria-current","page");renderDash()}));
+$("#activate").addEventListener("click",()=>{state.active=true;renderDash()});
+
+// toggles des blocs
+const BLOCKS=[["highlights","Arguments clés"],["urgency","Urgence et stock"],["bundles","Packs et offres groupées"],["delivery","Étapes de livraison"],["guarantee","Garantie remboursé"],["reviews","Avis clients"],["faq","FAQ"]];
+$("#toggles").innerHTML=BLOCKS.map(([k,n])=>`<div class="tog"><label for="tg-${k}" style="margin:0;font-weight:500">${n}</label><input type="checkbox" class="sw" id="tg-${k}" data-k="${k}" checked></div>`).join("");
+$$(".sw").forEach(c=>c.addEventListener("change",()=>{$$(`[data-block="${c.dataset.k}"]`).forEach(el=>el.hidden=!c.checked);
+  if(c.dataset.k==="bundles"&&!c.checked){state.pack=1;$$('input[name=pack]')[0].checked=true}}));
+
+go(location.hash.slice(1));
+</script>
