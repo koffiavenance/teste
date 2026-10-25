@@ -61,3 +61,12 @@ data/catalogue.js        catalogue (produits, catégories, infos)
 images/site/             logo, vitrine, favicon
 images/produits/         photos des produits
 ```
+
+## ShopFlow (`saas/`) — prototype SaaS e-commerce
+
+Prototype statique (HTML/CSS/JS, données en `localStorage`) inspiré d'un SaaS COD pour l'Afrique de l'Ouest. Ouvrir `saas/app.html`.
+
+- `app.html` : espace vendeur (tableau de bord, produits + éditeur à blocs activables, commandes avec statuts et stock, paniers abandonnés, clients, inbox IA, boutique, marketing, analytique, affiliation, thème clair/sombre, paramètres).
+- `produit.html?p=<slug>` : page produit modulaire (offres groupées, urgence, avis, FAQ…, bouton flottant + WhatsApp).
+- `commande.html?p=<slug>` : tunnel de commande en une page (paiement à la livraison).
+- Simulés : paiement d'activation, création de fiche « IA » et réponses IA (règles locales). Pas de back-end : brancher une API pour la production.
