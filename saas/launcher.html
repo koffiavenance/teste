@@ -1,0 +1,23 @@
+<title>ShopFlow Démo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F6F5FA;--fg:#1B1530;--muted:#6B6488;--card:#fff;--line:#E6E3F0;--accent:#4C1D95;--accent2:#7C3AED}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#110D1F;--fg:#F1EEFB;--muted:#A49CC4;--card:#1B1530;--line:#2F2750;--accent:#A78BFA;--accent2:#7C3AED;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#110D1F;--fg:#F1EEFB;--muted:#A49CC4;--card:#1B1530;--line:#2F2750;--accent:#A78BFA;--accent2:#7C3AED;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:16px/1.55 Inter,system-ui,sans-serif;padding-block:40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:640px;margin:0 auto;display:grid;gap:16px}
+h1{font:800 2rem 'Plus Jakarta Sans',sans-serif;margin:0;text-wrap:balance}
+p{margin:0;color:var(--muted)}
+a.t{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;text-decoration:none;color:var(--fg)}
+a.t:hover,a.t:focus-visible{border-color:var(--accent2);outline:none}
+a.t b{font:700 1.1rem 'Plus Jakarta Sans',sans-serif;color:var(--accent)}
+a.t span{display:block;color:var(--muted);font-size:.92rem}
+</style>
+<main>
+<h1>ShopFlow, version de démonstration</h1>
+<p>Commencez par l’espace vendeur : cliquez sur « Activer » dans le tableau de bord, puis ouvrez une page produit et passez une commande. Elle apparaîtra dans « Commandes ». Les données restent dans votre navigateur.</p>
+<a class="t" href="app.html"><b>1. Espace vendeur</b><span>Tableau de bord, produits, commandes, stock, paniers, marketing…</span></a>
+<a class="t" href="produit.html?p=richelieu-wholecut-noir"><b>2. Page produit client</b><span>Offres groupées, compte à rebours, avis, FAQ. Testez-la sur téléphone.</span></a>
+<a class="t" href="commande.html?p=richelieu-wholecut-noir&q=2"><b>3. Tunnel de commande</b><span>Formulaire en une page, paiement à la livraison.</span></a>
+</main>
