@@ -78,6 +78,7 @@
   <main class="container" style="padding-bottom:4rem">
     <nav class="a-tabs" role="tablist">
       <button class="a-tab is-active" data-tab="produits">Produits</button>
+      <button class="a-tab" data-tab="vitrine">Vitrine animée</button>
       <button class="a-tab" data-tab="categories">Catégories</button>
       <button class="a-tab" data-tab="infos">Offres &amp; infos</button>
       <button class="a-tab" data-tab="publier">Publication</button>
@@ -98,6 +99,24 @@
         <span class="counter" id="prod-count"></span>
       </div>
       <div class="items" id="prod-list"></div>
+    </section>
+
+    <!-- VITRINE ANIMEE -->
+    <section class="panel" id="p-vitrine" hidden>
+      <div class="help">
+        <strong>Vitrine animée :</strong> les photos défilent et bougent sur la page d'accueil, juste sous les catégories.
+        Pour chaque carte, changez la photo, le titre et le texte. Vous pouvez aussi ajouter une <strong>mini-vidéo</strong> (MP4, 25 Mo maximum) : elle se lance toute seule, sans son, quand le visiteur arrive sur la section.
+        Pour envoyer une vidéo, il faut d'abord avoir collé votre clé dans l'onglet Publication.
+      </div>
+      <div class="card-box" style="padding:1rem 1.2rem">
+        <div class="fields">
+          <label class="w3">Petit titre au-dessus<input data-v="eyebrow"></label>
+          <label class="w3">Titre de la section<input data-v="titre"></label>
+          <label class="w6">Texte d'introduction<input data-v="texte"></label>
+        </div>
+      </div>
+      <div class="bar"><button class="btn btn--navy" id="add-vit">+ Ajouter une carte</button><span class="counter" id="vit-count"></span></div>
+      <div class="items" id="vit-list"></div>
     </section>
 
     <!-- CATEGORIES -->

@@ -115,6 +115,70 @@
     rot.innerHTML = '<span>' + words[wi] + '</span>';
   }, 2600);
 
+  /* --- Collection animée (photos et mini-vidéos) --- */
+  (function () {
+    var v = shop.vitrine || {}, items = (v.items || []).filter(function (x) { return x.image || x.video; });
+    var sec = $('#vitrine'); if (!items.length) return;
+    sec.hidden = false;
+    if (v.eyebrow) $('#reel-eyebrow').textContent = v.eyebrow;
+    if (v.titre) $('#reel-titre').textContent = v.titre;
+    $('#reel-texte').textContent = v.texte || '';
+    var rail = $('#reel-track');
+    rail.innerHTML = items.map(function (it, i) {
+      var media = it.video
+        ? '<video class="reel__media" src="' + esc(it.video) + '" poster="' + esc(it.image) + '" muted loop playsinline preload="metadata" aria-hidden="true"></video>'
+        : '<img class="reel__media" src="' + esc(it.image) + '" alt="' + esc(it.titre) + '" loading="' + (i < 2 ? 'eager' : 'lazy') + '" decoding="async">';
+      return '<button class="reel__item" data-i="' + i + '" aria-label="' + esc(it.titre) + '">' + media +
+        '<img class="reel__logo" src="images/site/favicon.png" alt="" aria-hidden="true">' +
+        (it.video ? '<span class="reel__play">▶ Vidéo</span>' : '') +
+        '<div class="reel__cap"><small>' + esc(v.eyebrow || 'Nouveautés') + '</small><h3>' + esc(it.titre) + '</h3><p>' + esc(it.texte) + '</p><span class="go">Demander sur WhatsApp</span></div></button>';
+    }).join('');
+    $('#reel-dots').innerHTML = items.map(function (_, i) { return '<button aria-label="Photo ' + (i + 1) + '" data-d="' + i + '"></button>'; }).join('');
+    var els = $$('.reel__item', rail), dots = $$('#reel-dots button');
+    var cur = 0, auto = true, reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function center(i, smooth) {
+      var el = els[i]; if (!el) return;
+      rail.scrollTo({ left: el.offsetLeft - (rail.clientWidth - el.clientWidth) / 2, behavior: smooth === false || reduce ? 'auto' : 'smooth' });
+    }
+    function step(dir) {
+      var max = rail.scrollWidth - rail.clientWidth, w = els[0].offsetWidth + 19, x = rail.scrollLeft + dir * w;
+      if (dir > 0 && rail.scrollLeft >= max - 6) x = 0;
+      else if (dir < 0 && rail.scrollLeft <= 6) x = max;
+      rail.scrollTo({ left: x, behavior: reduce ? 'auto' : 'smooth' });
+    }
+    function mark(i) { cur = i; dots.forEach(function (d, k) { d.classList.toggle('is-on', k === i); }); }
+    mark(0);
+    $('#reel-prev').addEventListener('click', function () { auto = false; step(-1); });
+    $('#reel-next').addEventListener('click', function () { auto = false; step(1); });
+    dots.forEach(function (d) { d.addEventListener('click', function () { auto = false; center(Number(d.dataset.d)); }); });
+    rail.addEventListener('pointerdown', function () { auto = false; });
+    rail.addEventListener('touchstart', function () { auto = false; }, { passive: true });
+    rail.addEventListener('scroll', function () {
+      var mid = rail.scrollLeft + rail.clientWidth / 2, best = 0, bd = 1e9;
+      els.forEach(function (el, i) { var dd = Math.abs(el.offsetLeft + el.clientWidth / 2 - mid); if (dd < bd) { bd = dd; best = i; } });
+      var max = rail.scrollWidth - rail.clientWidth;
+      if (rail.scrollLeft <= 6) best = 0; else if (rail.scrollLeft >= max - 6) best = els.length - 1;
+      if (best !== cur) mark(best);
+    }, { passive: true });
+    els.forEach(function (el, i) {
+      el.addEventListener('click', function () {
+        var it = items[i];
+        auto = false;
+        window.open(waLink('Bonjour ' + (shop.nom || 'Bloom Shoes') + ', je suis intéressé par : ' + it.titre + '. Pouvez-vous me donner le prix et les couleurs disponibles ?'), '_blank', 'noopener');
+        track('contact');
+      });
+    });
+    // Avance toute seule tant que le visiteur ne touche à rien, et seulement quand la section est visible
+    var visible = false;
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (en) {
+        visible = en[0].isIntersecting;
+        $$('video', rail).forEach(function (vd) { if (visible) { var p = vd.play(); if (p && p.catch) p.catch(function () {}); } else vd.pause(); });
+      }, { threshold: 0.3 }).observe(sec);
+    }
+    if (!reduce) setInterval(function () { if (auto && visible) step(1); }, 3800);
+  })();
+
   /* --- Catégories --- */
   $('#cats').innerHTML = cats.map(function (c) {
     var n = prods.filter(function (p) { return p.categorie === c.id; }).length;

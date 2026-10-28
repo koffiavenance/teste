@@ -65,7 +65,7 @@
   }
 
   /* --- Images : redimensionnées dans le navigateur avant envoi --- */
-  function readImage(file, cb) {
+  function readImage(file, cb, noMark) {
     if (!file || !/^image\//.test(file.type)) { toast('Choisissez une image (JPG, PNG…).'); return; }
     var reader = new FileReader();
     reader.onload = function () {
@@ -77,7 +77,7 @@
         var ctx = c.getContext('2d');
         ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
         ctx.drawImage(img, 0, 0, c.width, c.height);
-        if (data.boutique.filigrane === false) { cb(c.toDataURL('image/jpeg', 0.82)); return; }
+        if (noMark || data.boutique.filigrane === false) { cb(c.toDataURL('image/jpeg', 0.82)); return; }
         // Logo Bloom Shoes ajouté automatiquement en bas à droite (mêmes proportions que les photos d'origine)
         var mark = new Image();
         mark.onload = function () {
@@ -195,6 +195,80 @@
   });
   fCat.addEventListener('change', renderProducts);
   fQ.addEventListener('input', renderProducts);
+
+  /* --- Vitrine animée --- */
+  function vit() {
+    var b = data.boutique;
+    if (!b.vitrine) b.vitrine = { eyebrow: 'Nouveautés', titre: 'La collection en mouvement', texte: '', items: [] };
+    if (!b.vitrine.items) b.vitrine.items = [];
+    return b.vitrine;
+  }
+  function renderVit() {
+    var v = vit();
+    $$('[data-v]').forEach(function (el) { if (document.activeElement !== el) el.value = v[el.dataset.v] || ''; });
+    $('#vit-count').textContent = v.items.length + ' carte(s)';
+    $('#vit-list').innerHTML = v.items.map(function (it) {
+      return '<article class="item" data-id="' + esc(it.id) + '">' +
+        '<div class="item__img"><img src="' + esc(it.image) + '" alt=""><label>Changer la photo<input type="file" accept="image/*" data-img></label></div>' +
+        '<div class="fields">' +
+          '<label class="w6">Titre<input data-k="titre" value="' + esc(it.titre) + '"></label>' +
+          '<label class="w6">Texte<input data-k="texte" value="' + esc(it.texte) + '"></label>' +
+          '<label class="w6">Mini-vidéo (facultatif)' +
+            '<span style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">' +
+              (it.video ? '<span style="font-size:.85rem;color:#166534">✓ Vidéo ajoutée : ' + esc(it.video.split('/').pop()) + '</span><button type="button" class="mini mini--danger" data-act="novideo">Retirer la vidéo</button>' : '<span style="font-size:.85rem;color:#9ca3af">Aucune vidéo : la photo bouge doucement.</span>') +
+              '<input type="file" accept="video/mp4,video/webm,video/quicktime" data-video style="width:auto"></span></label>' +
+        '</div>' +
+        '<div class="item__actions"><button class="mini" data-act="up">↑ Monter</button><button class="mini" data-act="down">↓ Descendre</button><button class="mini mini--danger" data-act="del">Supprimer</button></div></article>';
+    }).join('') || '<p class="counter">Aucune carte : la section est masquée sur le site.</p>';
+  }
+  function findVit(el) {
+    var id = el.closest('.item').dataset.id;
+    return vit().items.find(function (x) { return x.id === id; });
+  }
+  $('#p-vitrine').addEventListener('input', function (e) {
+    if (e.target.dataset.v) { vit()[e.target.dataset.v] = e.target.value; save(); return; }
+    if (e.target.dataset.k) { findVit(e.target)[e.target.dataset.k] = e.target.value; save(); }
+  });
+  $('#p-vitrine').addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.hasAttribute('data-img')) {
+      var it = findVit(t);
+      readImage(t.files[0], function (url) { it.image = url; save(); renderVit(); toast('Photo mise à jour.'); }, true);
+    } else if (t.hasAttribute('data-video')) {
+      uploadVideo(t.files[0], findVit(t));
+    }
+  });
+  $('#p-vitrine').addEventListener('click', function (e) {
+    var act = e.target.dataset.act; if (!act) return;
+    var items = vit().items, it = findVit(e.target), i = items.indexOf(it);
+    if (act === 'del') { if (!confirm('Supprimer cette carte ?')) return; items.splice(i, 1); }
+    else if (act === 'novideo') it.video = '';
+    else if (act === 'up' && i > 0) items.splice(i - 1, 0, items.splice(i, 1)[0]);
+    else if (act === 'down' && i < items.length - 1) items.splice(i + 1, 0, items.splice(i, 1)[0]);
+    save(); renderVit();
+  });
+  $('#add-vit').addEventListener('click', function () {
+    vit().items.unshift({ id: uid('carte'), titre: 'Nouvelle carte', texte: '', image: 'images/site/vitrine.jpg', video: '' });
+    save(); renderVit();
+    var f = $('#vit-list input[data-k="titre"]'); if (f) { f.focus(); f.select(); }
+  });
+  // La vidéo est envoyée tout de suite sur GitHub (elle est trop lourde pour le brouillon du navigateur)
+  function uploadVideo(file, it) {
+    if (!file) return;
+    if (!/^video\//.test(file.type)) { toast('Choisissez un fichier vidéo (MP4).'); return; }
+    if (file.size > 25 * 1024 * 1024) { toast('Vidéo trop lourde (' + Math.round(file.size / 1048576) + ' Mo). Maximum : 25 Mo.'); return; }
+    if (!gh.token) { toast('Collez d\'abord votre clé dans l\'onglet Publication.'); return; }
+    toast('Envoi de la vidéo… ne fermez pas la page.');
+    var reader = new FileReader();
+    reader.onload = function () {
+      var ext = /webm/.test(file.type) ? 'webm' : 'mp4';
+      var path = 'videos/' + slug(it.titre) + '-' + Date.now().toString(36) + '.' + ext;
+      putFile(path, String(reader.result).split(',')[1], 'Vidéo : ' + it.titre).then(function () {
+        it.video = path; save(); renderVit(); toast('Vidéo envoyée. Touchez « Publier en ligne » pour l\'afficher sur le site.');
+      }).catch(function (err) { toast('Échec de l\'envoi : ' + err.message); });
+    };
+    reader.readAsDataURL(file);
+  }
 
   /* --- Catégories --- */
   function renderCats() {
@@ -412,6 +486,7 @@
     var list = d.produits.concat(d.categories);
     var vip = d.boutique.offres && d.boutique.offres.vip;
     if (vip) { vip.id = vip.id || 'pack-vip'; list.push(vip); }
+    ((d.boutique.vitrine || {}).items || []).forEach(function (it) { it.nom = it.nom || it.titre; list.push(it); });
     return list;
   }
 
@@ -490,7 +565,7 @@
   $('#btn-publish').addEventListener('click', publish);
   $('#btn-publish-top').addEventListener('click', publish);
 
-  function renderAll() { renderProducts(); renderCats(); renderInfos(); }
+  function renderAll() { renderProducts(); renderCats(); renderInfos(); renderVit(); }
   renderAll();
   updateStatus();
 })();

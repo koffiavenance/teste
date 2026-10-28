@@ -250,6 +250,40 @@ svg{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-l
 .preview-banner{position:sticky;top:0;z-index:60;background:var(--orange);color:#fff;text-align:center;font-size:.85rem;padding:.5rem}
 .preview-banner a{font-weight:600}
 
+/* Collection animée */
+.reel{padding:clamp(3.5rem,8vw,6rem) 0 clamp(3rem,6vw,4.5rem);background:linear-gradient(180deg,var(--navy-900) 0%,var(--navy) 100%);color:#dfe5ef;overflow:hidden}
+.reel[hidden]{display:none}
+.reel h2{color:#fff}
+.reel .section__lead{color:#b9c4d6}
+.reel__wrap{position:relative}
+.reel__track{display:flex;gap:1.2rem;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding:1rem max(16px,calc((100% - 1200px)/2)) 1.6rem;scrollbar-width:none;outline:0}
+.reel__track::-webkit-scrollbar{display:none}
+.reel__item{position:relative;flex:0 0 clamp(250px,26vw,330px);aspect-ratio:3/4.3;border-radius:26px;overflow:hidden;scroll-snap-align:center;background:#0b1a33;box-shadow:0 30px 60px -25px rgba(0,0,0,.8);cursor:pointer;border:0;padding:0;color:#fff;text-align:left;font:inherit;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.reel__item:nth-child(even){transform:translateY(18px)}
+.reel__item:hover{transform:translateY(-8px)}
+.reel__media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:reelZoom 12s ease-in-out infinite alternate}
+.reel__item:nth-child(2n) .reel__media{animation-name:reelZoomB;animation-duration:14s}
+.reel__item:nth-child(3n) .reel__media{animation-duration:16s}
+@keyframes reelZoom{from{transform:scale(1.04) translate(0,0)}to{transform:scale(1.2) translate(-3%,-2%)}}
+@keyframes reelZoomB{from{transform:scale(1.2) translate(3%,2%)}to{transform:scale(1.04) translate(0,0)}}
+.reel__item::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(0deg,rgba(9,20,40,.92) 0%,rgba(9,20,40,.1) 52%,transparent 70%)}
+.reel__item::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.2) 50%,transparent 60%);background-size:250% 100%;animation:shine 7s ease-in-out infinite}
+.reel__item:nth-child(2n)::after{animation-delay:-3s}
+.reel__cap{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:1.3rem}
+.reel__cap small{display:inline-block;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#ffb983;margin-bottom:.3rem}
+.reel__cap h3{color:#fff;font-size:1.3rem;margin:0 0 .25rem}
+.reel__cap p{margin:0;font-size:.85rem;color:#cdd6e5}
+.reel__cap .go{display:inline-flex;gap:.4rem;margin-top:.7rem;font-size:.8rem;font-weight:600;color:#fff;background:var(--wa);padding:.4em .9em;border-radius:999px}
+.reel__logo{position:absolute;top:14px;left:14px;z-index:3;width:44px;height:44px;border-radius:50%;box-shadow:0 6px 16px rgba(0,0,0,.45)}
+.reel__play{position:absolute;top:14px;right:14px;z-index:3;font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);padding:.35em .8em;border-radius:999px}
+.reel__nav{position:absolute;top:50%;translate:0 -50%;z-index:5;width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:var(--navy);font-size:1.7rem;line-height:1;cursor:pointer;box-shadow:0 10px 25px -8px rgba(0,0,0,.6);transition:transform .25s,background .25s}
+.reel__nav:hover{background:var(--orange);color:#fff;transform:scale(1.08)}
+.reel__nav--prev{left:14px}.reel__nav--next{right:14px}
+.reel__dots{display:flex;gap:.5rem;justify-content:center;margin-top:.4rem}
+.reel__dots button{width:9px;height:9px;border-radius:999px;border:0;padding:0;background:rgba(255,255,255,.3);cursor:pointer;transition:all .3s}
+.reel__dots button.is-on{width:28px;background:var(--orange)}
+@media (max-width:760px){.reel__nav{display:none}.reel__item{flex-basis:72vw}}
+
 /* Offres */
 .offres{padding:clamp(4rem,8vw,6rem) 0;background:radial-gradient(circle at 85% 0%,rgba(224,122,47,.12),transparent 40%),var(--ivory)}
 .offres__grid{display:grid;grid-template-columns:1fr 1fr;gap:1.6rem;max-width:980px;margin:0 auto}

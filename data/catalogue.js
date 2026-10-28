@@ -54,6 +54,48 @@ window.BLOOM_CATALOGUE = {
       "googleAdsConversion": "",
       "meta": "",
       "tiktok": ""
+    },
+    "vitrine": {
+      "eyebrow": "Nouveautés",
+      "titre": "La collection en mouvement",
+      "texte": "Découvrez nos dernières arrivées. Touchez une photo pour en savoir plus sur WhatsApp.",
+      "items": [
+        {
+          "id": "v-richelieu",
+          "titre": "Richelieu une pièce",
+          "texte": "L'élégance classique, cuir noir glacé.",
+          "image": "images/vitrine/richelieu-noir.jpg",
+          "video": ""
+        },
+        {
+          "id": "v-mocassin",
+          "titre": "Mocassin de conduite noir",
+          "texte": "Souple, léger, prêt pour la route.",
+          "image": "images/vitrine/mocassin-noir-boite.jpg",
+          "video": ""
+        },
+        {
+          "id": "v-olive",
+          "titre": "Penny loafer vert olive",
+          "texte": "Une couleur qui se remarque.",
+          "image": "images/vitrine/penny-loafer-vert-olive.jpg",
+          "video": ""
+        },
+        {
+          "id": "v-sneaker",
+          "titre": "Sneaker en cuir noir",
+          "texte": "Le confort d'une basket, l'allure du cuir.",
+          "image": "images/vitrine/sneaker-cuir-noir.jpg",
+          "video": ""
+        },
+        {
+          "id": "v-derby",
+          "titre": "Derby bordeaux, semelle blanche",
+          "texte": "Chic et décontracté, du bureau au week-end.",
+          "image": "images/vitrine/derby-bordeaux-semelle-blanche.jpg",
+          "video": ""
+        }
+      ]
     }
   },
   "categories": [
