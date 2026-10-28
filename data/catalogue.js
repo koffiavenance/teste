@@ -84,6 +84,21 @@ window.BLOOM_CATALOGUE = {
   ],
   "produits": [
     {
+      "id": "nouveau-produit-qqug",
+      "nom": "Mocassin Daim",
+      "categorie": "mocassins-conduite",
+      "prix": 25000,
+      "ancienPrix": null,
+      "description": "",
+      "couleurs": [
+        "Vert"
+      ],
+      "image": "images/produits/mocassin-daim-mvs4v58c.jpg",
+      "badge": "Nouveau",
+      "disponible": true,
+      "prixVIP": null
+    },
+    {
       "id": "mocassin-penny-cognac-croco",
       "nom": "Mocassin Penny Cognac",
       "categorie": "mocassins-conduite",
