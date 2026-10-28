@@ -65,35 +65,40 @@ window.BLOOM_CATALOGUE = {
           "titre": "Richelieu une pièce",
           "texte": "L'élégance classique, cuir noir glacé.",
           "image": "images/vitrine/richelieu-noir.jpg",
-          "video": ""
+          "video": "",
+          "nom": "Richelieu une pièce"
         },
         {
           "id": "v-mocassin",
           "titre": "Mocassin de conduite noir",
           "texte": "Souple, léger, prêt pour la route.",
           "image": "images/vitrine/mocassin-noir-boite.jpg",
-          "video": ""
+          "video": "",
+          "nom": "Mocassin de conduite noir"
         },
         {
           "id": "v-olive",
           "titre": "Penny loafer vert olive",
           "texte": "Une couleur qui se remarque.",
           "image": "images/vitrine/penny-loafer-vert-olive.jpg",
-          "video": ""
+          "video": "",
+          "nom": "Penny loafer vert olive"
         },
         {
           "id": "v-sneaker",
           "titre": "Sneaker en cuir noir",
           "texte": "Le confort d'une basket, l'allure du cuir.",
           "image": "images/vitrine/sneaker-cuir-noir.jpg",
-          "video": ""
+          "video": "",
+          "nom": "Sneaker en cuir noir"
         },
         {
           "id": "v-derby",
           "titre": "Derby bordeaux, semelle blanche",
           "texte": "Chic et décontracté, du bureau au week-end.",
           "image": "images/vitrine/derby-bordeaux-semelle-blanche.jpg",
-          "video": ""
+          "video": "",
+          "nom": "Derby bordeaux, semelle blanche"
         }
       ]
     }
@@ -425,5 +430,5 @@ window.BLOOM_CATALOGUE = {
       "prixVIP": null
     }
   ],
-  "version": 1793194219088
+  "version": 1793195384800
 };
