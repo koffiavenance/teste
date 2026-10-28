@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <script>document.write('<link rel="stylesheet" href="assets/css/style.css?v=' + Math.floor(Date.now() / 120000) + '">');</script>
 </head>
 <body>
 
@@ -338,7 +338,7 @@
 
   <script>/* Charge toujours la dernière version du catalogue (au plus 1 minute de retard), sans attendre le cache du navigateur */
   document.write('<script src="data/catalogue.js?t=' + Math.floor(Date.now() / 60000) + '"><\/script>');</script>
-  <script src="assets/js/tracking.js"></script>
-  <script src="assets/js/app.js"></script>
+  <script>document.write('<script src="assets/js/tracking.js?v=' + Math.floor(Date.now() / 120000) + '"><\/script>');</script>
+  <script>document.write('<script src="assets/js/app.js?v=' + Math.floor(Date.now() / 120000) + '"><\/script>');</script>
 </body>
 </html>
