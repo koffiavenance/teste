@@ -415,6 +415,23 @@
     return list;
   }
 
+  // Après publication, on interroge le vrai site jusqu'à ce que la nouvelle version soit en ligne
+  function waitOnline(version) {
+    var tries = 0;
+    (function check() {
+      fetch('data/catalogue.js?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (txt) {
+        var m = txt.match(/"version":\s*(\d+)/);
+        if (m && Number(m[1]) >= version) {
+          log('✓ EN LIGNE ! Vos clients voient maintenant vos modifications.');
+          log('  Si vous ne les voyez pas sur votre téléphone, fermez puis rouvrez la page du site.');
+          toast('En ligne ! Vos modifications sont visibles.');
+        } else if (++tries < 24) { setTimeout(check, 10000); }
+        else log('… La mise en ligne prend plus de temps que d\'habitude. Réessayez de rouvrir le site dans quelques minutes.');
+      }).catch(function () { if (++tries < 24) setTimeout(check, 10000); });
+      if (tries === 1) log('  (GitHub construit le site, cela prend 30 secondes à 2 minutes…)');
+    })();
+  }
+
   var publishing = false;
   function publish() {
     if (publishing) return;
@@ -428,6 +445,7 @@
     $$('#btn-publish, #btn-publish-top').forEach(function (b) { b.disabled = true; b.textContent = 'Publication…'; });
     $('#log').textContent = '';
     var out = clone(data);
+    out.version = Date.now();
     var uploads = [];
     imageHolders(out).forEach(function (it) {
       if (it.image && it.image.indexOf('data:') === 0) uploads.push(it);
@@ -447,7 +465,8 @@
       log('Envoi du catalogue…');
       return putFile('data/catalogue.js', utf8b64(catalogueFile(out)), 'Mise à jour du catalogue depuis l\'administration');
     }).then(function () {
-      log('✓ Publié ! Le site sera à jour dans 1 à 2 minutes.');
+      log('✓ Publié sur GitHub. Vérification de la mise en ligne…');
+      waitOnline(out.version);
       data = out; live = clone(out);
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); } catch (e) { /* ignore */ }
       renderAll(); updateStatus();

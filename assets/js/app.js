@@ -161,7 +161,7 @@
       var badge = p.disponible === false ? '<span class="badge badge--off">Épuisé</span>' : (p.badge ? '<span class="badge">' + esc(p.badge) + '</span>' : '');
       var old = p.ancienPrix ? '<s>' + money(p.ancienPrix) + '</s>' : '';
       return '<article class="card" style="animation-delay:' + Math.min(i * 45, 500) + 'ms" data-id="' + esc(p.id) + '" tabindex="0" role="button" aria-label="Commander ' + esc(p.nom) + '">' +
-        '<div class="card__media"><img src="' + esc(p.image) + '" alt="' + esc(p.nom) + '" loading="lazy">' + badge +
+        '<div class="card__media"><img src="' + esc(p.image) + '" alt="' + esc(p.nom) + '" width="400" height="400" loading="' + (i < 4 ? 'eager' : 'lazy') + '" decoding="async">' + badge +
         '<span class="card__quick btn btn--orange btn--block">Commander</span></div>' +
         '<div class="card__body"><span class="card__cat">' + esc(catName(p.categorie)) + '</span>' +
         '<h3 class="card__name">' + esc(p.nom) + '</h3>' +

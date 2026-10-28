@@ -146,7 +146,8 @@
 
   <div class="toast" id="toast" hidden></div>
 
-  <script src="data/catalogue.js"></script>
+  <script>/* Charge toujours la dernière version du catalogue (au plus 1 minute de retard), sans attendre le cache du navigateur */
+  document.write('<script src="data/catalogue.js?t=' + Math.floor(Date.now() / 60000) + '"><\/script>');</script>
   <script src="assets/js/admin.js"></script>
 </body>
 </html>
