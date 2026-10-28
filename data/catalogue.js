@@ -382,5 +382,6 @@ window.BLOOM_CATALOGUE = {
       "disponible": true,
       "prixVIP": null
     }
-  ]
+  ],
+  "version": 1793194219088
 };
