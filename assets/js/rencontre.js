@@ -144,6 +144,7 @@
       '',
       'Confirmations : majeure, informations vraies, démarche sincère, accord d\'envoi.'
     ];
+    if (window.bloomTrack) window.bloomTrack('formulaire', { nom: 'Formulaire rencontre' });
     var url = 'https://wa.me/' + num + '?text=' + encodeURIComponent(lines.join('\n'));
     form.hidden = true;
     var t = $('#rv-thanks'); t.hidden = false; $('#rv-again').href = url;

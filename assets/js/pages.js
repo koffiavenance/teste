@@ -15,7 +15,8 @@
   });
   var s = shop.suivi || {}, noms = [];
   if (s.google || s.googleAdsConversion) noms.push('Google Analytics / Google Ads');
-  if (s.meta) noms.push('le pixel Meta (Facebook, Instagram)');
+  var rs = (shop.rencontre || {}).suivi || {};
+  if (s.meta || rs.meta) noms.push('le pixel Meta (Facebook, Instagram)');
   if (s.tiktok) noms.push('le pixel TikTok');
   document.querySelectorAll('[data-suivi]').forEach(function (el) {
     el.hidden = (el.dataset.suivi === 'oui') !== (noms.length > 0);

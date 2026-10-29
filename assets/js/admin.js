@@ -315,6 +315,7 @@
   }
   function renderRen() {
     var r = ren(), w = $('[data-r="whatsapp"]'); if (w && document.activeElement !== w) w.value = r.whatsapp || '';
+    var px = $('[data-rs="meta"]'); if (px && document.activeElement !== px) px.value = (r.suivi && r.suivi.meta) || '';
     $('#ren-main').innerHTML = videoCard(r.principale, 'main');
     $('#ren-proofs').innerHTML = r.preuves.map(function (p) { return videoCard(p, 'proof'); }).join('') || '<p class="counter">Aucune vidéo « preuve » pour le moment.</p>';
   }
@@ -323,7 +324,12 @@
     return card.dataset.kind === 'main' ? r.principale : r.preuves.find(function (x) { return x.id === card.dataset.id; });
   }
   $('#p-rencontre').addEventListener('input', function (e) {
-    if (e.target.dataset.r) { ren()[e.target.dataset.r] = e.target.value.replace(/\D/g, ''); save(); }
+    if (e.target.dataset.rs) {
+      var rr = ren(); rr.suivi = rr.suivi || {};
+      var val = e.target.value.trim();
+      if (/^EAA/i.test(val) || val.length > 25) { toast('Ceci n\'est pas un numéro de pixel : c\'est un jeton secret. Ne le collez pas ici.'); e.target.value = ''; rr.suivi[e.target.dataset.rs] = ''; save(); return; }
+      rr.suivi[e.target.dataset.rs] = val.replace(/\D/g, ''); save();
+    } else if (e.target.dataset.r) { ren()[e.target.dataset.r] = e.target.value.replace(/\D/g, ''); save(); }
     else if (e.target.dataset.k) { findRen(e.target)[e.target.dataset.k] = e.target.value; save(); }
   });
   $('#p-rencontre').addEventListener('change', function (e) {

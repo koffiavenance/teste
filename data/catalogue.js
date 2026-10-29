@@ -110,7 +110,10 @@ window.BLOOM_CATALOGUE = {
         "video": "",
         "image": ""
       },
-      "preuves": []
+      "preuves": [],
+      "suivi": {
+        "meta": ""
+      }
     }
   },
   "categories": [

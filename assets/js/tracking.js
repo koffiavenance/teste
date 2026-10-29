@@ -5,7 +5,10 @@
 (function () {
   'use strict';
 
-  var cfg = (((window.BLOOM_CATALOGUE || {}).boutique || {}).suivi) || {};
+  // La page « Rencontre » a son propre pixel (data-suivi="rencontre" sur <body>), distinct de celui de la boutique
+  var shopCfg = ((window.BLOOM_CATALOGUE || {}).boutique || {});
+  var isRen = document.body && document.body.dataset.suivi === 'rencontre';
+  var cfg = (isRen ? (shopCfg.rencontre || {}).suivi : shopCfg.suivi) || {};
   var CONSENT_KEY = 'bloom_consentement';
   function val(k, re) { var v = String(cfg[k] || '').trim(); return re.test(v) ? v : ''; }
   var ids = {
@@ -75,6 +78,13 @@
       }
       if (window.fbq) window.fbq('track', 'Lead', item);
       if (window.ttq) window.ttq.track('SubmitForm', item);
+    } else if (name === 'formulaire') {
+      // Formulaire envoyé (page Rencontre). L'identifiant d'événement servira à dédupliquer avec l'API de conversion.
+      var eid = d.eventId || ('f' + Date.now() + Math.random().toString(36).slice(2, 8));
+      window.bloomLastEventId = eid;
+      if (window.gtag) window.gtag('event', 'generate_lead');
+      if (window.fbq) window.fbq('track', 'Lead', { content_name: d.nom || 'Formulaire' }, { eventID: eid });
+      if (window.ttq) window.ttq.track('SubmitForm', { content_name: d.nom || 'Formulaire' });
     } else if (name === 'contact') {
       if (window.gtag) window.gtag('event', 'contact', { method: 'whatsapp' });
       if (window.fbq) window.fbq('track', 'Contact');
@@ -93,7 +103,7 @@
   bar.setAttribute('role', 'dialog');
   bar.setAttribute('aria-label', 'Cookies');
   bar.innerHTML = '<p>Nous utilisons des cookies pour mesurer la fréquentation et améliorer nos publicités (' + [ids.google || ids.googleAds ? 'Google' : '', ids.meta ? 'Facebook, Instagram' : '', ids.tiktok ? 'TikTok' : ''].filter(Boolean).join(', ') + '). ' +
-    '<a href="politique-confidentialite.html">En savoir plus</a></p>' +
+    '<a href="politique-confidentialite.html' + (isRen ? '#rencontre' : '') + '">En savoir plus</a></p>' +
     '<div><button type="button" class="btn btn--orange" data-c="oui">Accepter</button>' +
     '<button type="button" class="btn consent__no" data-c="non">Refuser</button></div>';
   function decide(v) {
