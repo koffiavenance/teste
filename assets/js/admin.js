@@ -41,7 +41,7 @@
     t.textContent = msg;
     t.hidden = false;
     clearTimeout(toast.t);
-    toast.t = setTimeout(function () { t.hidden = true; }, 4000);
+    toast.t = setTimeout(function () { t.hidden = true; }, 7000);
   }
 
   /* --- Enregistrement automatique du brouillon --- */
@@ -216,7 +216,7 @@
           '<label class="w6">Mini-vidéo (facultatif)' +
             '<span style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">' +
               (it.video ? '<span style="font-size:.85rem;color:#166534">✓ Vidéo ajoutée : ' + esc(it.video.split('/').pop()) + '</span><button type="button" class="mini mini--danger" data-act="novideo">Retirer la vidéo</button>' : '<span style="font-size:.85rem;color:#9ca3af">Aucune vidéo : la photo bouge doucement.</span>') +
-              '<input type="file" accept="video/mp4,video/webm,video/quicktime" data-video style="width:auto"></span></label>' +
+              '<input type="file" accept="video/*,.mp4,.mov,.m4v,.webm,.3gp" data-video style="width:auto"></span>' + vstatHtml(it.id) + '</label>' +
         '</div>' +
         '<div class="item__actions"><button class="mini" data-act="up">↑ Monter</button><button class="mini" data-act="down">↓ Descendre</button><button class="mini mini--danger" data-act="del">Supprimer</button></div></article>';
     }).join('') || '<p class="counter">Aucune carte : la section est masquée sur le site.</p>';
@@ -271,24 +271,80 @@
     v.onerror = function () { finish(null); };
     setTimeout(function () { finish(null); }, 8000);
   }
+  // Messages d'envoi affichés dans la carte de la vidéo (ils restent affichés, contrairement aux petits messages du bas)
+  var vstat = {};
+  function vstatHtml(id) {
+    var s = vstat[id]; if (!s) return '<span class="vstat" data-for="' + esc(id) + '" hidden></span>';
+    return '<span class="vstat vstat--' + s.kind + '" data-for="' + esc(id) + '">' + esc(s.text) +
+      (s.go ? ' <button type="button" class="mini" data-goto="' + s.go + '">Ouvrir l\'onglet Publication</button>' : '') + '</span>';
+  }
+  function setStat(id, kind, text, go) {
+    vstat[id] = { kind: kind, text: text, go: go };
+    var html = vstatHtml(id);
+    $$('[data-for="' + id + '"]').forEach(function (el) { el.outerHTML = html; });
+  }
+  document.addEventListener('click', function (e) {
+    var g = e.target.dataset && e.target.dataset.goto; if (!g) return;
+    $$('.a-tab').forEach(function (x) { if (x.dataset.tab === g) x.click(); });
+    var t = $('#gh-token'); if (t) setTimeout(function () { t.focus(); }, 100);
+  });
+  var VIDEO_EXT = /\.(mp4|m4v|mov|webm|3gp|3gpp|mkv)$/i;
+  // Envoi sur GitHub avec barre de progression
+  function putFileProgress(path, b64, message, onProgress) {
+    return new Promise(function (resolve, reject) {
+      var x = new XMLHttpRequest();
+      x.open('PUT', 'https://api.github.com/repos/' + gh.owner + '/' + gh.repo + '/contents/' + path);
+      x.setRequestHeader('Authorization', 'Bearer ' + gh.token);
+      x.setRequestHeader('Accept', 'application/vnd.github+json');
+      x.setRequestHeader('Content-Type', 'application/json');
+      x.upload.onprogress = function (e) { if (e.lengthComputable && onProgress) onProgress(Math.round(e.loaded / e.total * 100)); };
+      x.onload = function () {
+        if (x.status >= 200 && x.status < 300) return resolve();
+        var m = ''; try { m = JSON.parse(x.responseText).message; } catch (e) { /* ignore */ }
+        reject(new Error(m || ('erreur ' + x.status)));
+      };
+      x.onerror = function () { reject(new Error('connexion interrompue')); };
+      x.ontimeout = function () { reject(new Error('délai dépassé')); };
+      x.timeout = 10 * 60 * 1000;
+      x.send(JSON.stringify({ message: message, content: b64, branch: gh.branch }));
+    });
+  }
   function uploadVideo(file, it, opts) {
     opts = opts || {};
-    var after = opts.after || renderVit;
+    var after = opts.after || renderVit, id = it.id;
     if (!file) return;
-    if (!/^video\//.test(file.type)) { toast('Choisissez un fichier vidéo (MP4).'); return; }
-    if (file.size > 25 * 1024 * 1024) { toast('Vidéo trop lourde (' + Math.round(file.size / 1048576) + ' Mo). Maximum : 25 Mo.'); return; }
-    if (!gh.token) { toast('Collez d\'abord votre clé dans l\'onglet Publication.'); return; }
-    toast('Envoi de la vidéo… ne fermez pas la page.');
+    var mb = (file.size / 1048576).toFixed(1).replace('.', ',');
+    if (!(/^video\//.test(file.type) || VIDEO_EXT.test(file.name))) {
+      setStat(id, 'err', '✗ « ' + file.name + ' » n\'est pas une vidéo. Choisissez un fichier MP4.'); return;
+    }
+    if (file.size > 25 * 1024 * 1024) {
+      setStat(id, 'err', '✗ Vidéo trop lourde (' + mb + ' Mo, maximum 25 Mo). Envoyez-la d\'abord à vous-même sur WhatsApp puis enregistrez-la : WhatsApp la réduit.'); return;
+    }
+    if (!gh.token) {
+      setStat(id, 'err', '✗ Aucune clé GitHub n\'est enregistrée dans ce navigateur. Collez-la d\'abord dans l\'onglet Publication, puis recommencez.', 'publier'); return;
+    }
+    setStat(id, 'info', '⏳ Lecture de la vidéo (' + mb + ' Mo)…');
     var reader = new FileReader();
+    reader.onerror = function () { setStat(id, 'err', '✗ Impossible de lire ce fichier. Essayez une autre vidéo.'); };
     reader.onload = function () {
-      var ext = /webm/.test(file.type) ? 'webm' : 'mp4';
+      var ext = /webm/i.test(file.type + file.name) ? 'webm' : 'mp4';
       var path = 'videos/' + slug(it.titre || it.id) + '-' + Date.now().toString(36) + '.' + ext;
-      putFile(path, String(reader.result).split(',')[1], 'Vidéo : ' + (it.titre || it.id)).then(function () {
+      setStat(id, 'info', '⏳ Envoi… 0 %  (ne fermez pas la page)');
+      putFileProgress(path, String(reader.result).split(',')[1], 'Vidéo : ' + (it.titre || it.id), function (p) {
+        setStat(id, 'info', '⏳ Envoi… ' + p + ' %  (ne fermez pas la page)');
+      }).then(function () {
         it.video = path;
-        var finishUp = function () { save(); after(); toast('Vidéo envoyée. Touchez « Publier en ligne » pour l\'afficher sur le site.'); };
+        var finishUp = function () {
+          setStat(id, 'ok', '✓ Vidéo envoyée (' + mb + ' Mo). Touchez maintenant « Publier en ligne » en haut de la page.');
+          save(); after();
+        };
         if (opts.poster) videoPoster(file, function (p) { if (p) it.image = p; finishUp(); });
         else finishUp();
-      }).catch(function (err) { toast('Échec de l\'envoi : ' + err.message); });
+      }).catch(function (err) {
+        var m = err.message || '';
+        var hint = /Bad credentials|401/.test(m) ? ' → La clé GitHub est invalide ou expirée.' : /Not Found|404|403|Resource not accessible/.test(m) ? ' → Vérifiez les droits de la clé (Contents : Read and write).' : '';
+        setStat(id, 'err', '✗ Échec de l\'envoi : ' + m + '.' + hint);
+      });
     };
     reader.readAsDataURL(file);
   }
@@ -309,7 +365,7 @@
       '<div class="fields">' +
         (kind === 'proof' ? '<label class="w6">Légende (facultatif)<input data-k="titre" value="' + esc(it.titre) + '" placeholder="Ex. Moi, aujourd\'hui"></label>' : '') +
         '<label class="w6">' + (has ? '<span style="color:#166534">✓ Vidéo ajoutée : ' + esc(it.video.split('/').pop()) + '</span>' : '<span style="color:#9ca3af">Aucune vidéo pour le moment</span>') +
-          '<input type="file" accept="video/mp4,video/webm,video/quicktime" data-video style="width:auto"></label>' +
+          '<input type="file" accept="video/*,.mp4,.mov,.m4v,.webm,.3gp" data-video style="width:auto">' + vstatHtml(it.id) + '</label>' +
       '</div>' +
       '<div class="item__actions">' + (has ? '<button class="mini" data-act="novideo">Retirer la vidéo</button>' : '') + (kind === 'proof' ? '<button class="mini mini--danger" data-act="del">Supprimer</button>' : '') + '</div></article>';
   }
