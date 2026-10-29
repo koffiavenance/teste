@@ -112,7 +112,7 @@ window.BLOOM_CATALOGUE = {
       },
       "preuves": [],
       "suivi": {
-        "meta": ""
+        "meta": "1850329749302771"
       }
     }
   },
