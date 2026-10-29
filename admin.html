@@ -79,6 +79,7 @@
     <nav class="a-tabs" role="tablist">
       <button class="a-tab is-active" data-tab="produits">Produits</button>
       <button class="a-tab" data-tab="vitrine">Vitrine animée</button>
+      <button class="a-tab" data-tab="rencontre">Page Rencontre</button>
       <button class="a-tab" data-tab="categories">Catégories</button>
       <button class="a-tab" data-tab="infos">Offres &amp; infos</button>
       <button class="a-tab" data-tab="publier">Publication</button>
@@ -117,6 +118,25 @@
       </div>
       <div class="bar"><button class="btn btn--navy" id="add-vit">+ Ajouter une carte</button><span class="counter" id="vit-count"></span></div>
       <div class="items" id="vit-list"></div>
+    </section>
+
+    <!-- PAGE RENCONTRE -->
+    <section class="panel" id="p-rencontre" hidden>
+      <div class="help">
+        <strong>Page Rencontre :</strong> adresse à partager : <b>https://bloomshoes.site/rencontre</b> (non visible depuis la boutique, non référencée sur Google).
+        Ajoutez ici vos vidéos : MP4, 25 Mo maximum chacune. Astuce : envoyez la vidéo à vous-même sur WhatsApp puis enregistrez-la, WhatsApp la réduit automatiquement.
+        Il faut avoir collé votre clé dans l'onglet Publication avant d'envoyer une vidéo.
+      </div>
+      <div class="card-box">
+        <h2>Numéro WhatsApp qui reçoit les formulaires</h2>
+        <div class="fields"><label class="w3">Numéro (format international, ex. 2250700000000)<input data-r="whatsapp" inputmode="numeric"></label></div>
+      </div>
+      <div class="card-box"><h2>Vidéo de présentation</h2><div id="ren-main"></div></div>
+      <div class="card-box">
+        <h2>Vidéos « C'est bien moi » (preuves)</h2>
+        <div class="bar"><button class="btn btn--navy" id="add-proof">+ Ajouter une vidéo</button></div>
+        <div class="items" id="ren-proofs"></div>
+      </div>
     </section>
 
     <!-- CATEGORIES -->

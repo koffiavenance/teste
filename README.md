@@ -10,6 +10,7 @@ Site de vente de chaussures en cuir pour homme (Abidjan, Adjamé). Les commandes
 | `admin.html` | L'administration : produits (image, nom, prix, prix Pack VIP, description, couleurs), catégories, offres, livraison, remboursement, fenêtre « avant de partir ». |
 | `livraison-retours.html` | Conditions de livraison, d'échange et de remboursement (délais réglables dans l'administration). |
 | `politique-confidentialite.html` | Politique de confidentialité. |
+| `rencontre.html` | Page « Rencontre sérieuse » (tunnel) : adresse `https://bloomshoes.site/rencontre`, non liée à la boutique et non référencée. Formulaire en 3 étapes envoyé sur WhatsApp. Vidéos et numéro réglables dans l'administration, onglet *Page Rencontre*. |
 
 ## Les 2 offres
 

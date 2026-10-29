@@ -101,6 +101,16 @@ window.BLOOM_CATALOGUE = {
           "nom": "Derby bordeaux, semelle blanche"
         }
       ]
+    },
+    "rencontre": {
+      "whatsapp": "2250748110942",
+      "principale": {
+        "id": "rencontre-principale",
+        "titre": "Ma présentation",
+        "video": "",
+        "image": ""
+      },
+      "preuves": []
     }
   },
   "categories": [

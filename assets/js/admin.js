@@ -253,7 +253,27 @@
     var f = $('#vit-list input[data-k="titre"]'); if (f) { f.focus(); f.select(); }
   });
   // La vidéo est envoyée tout de suite sur GitHub (elle est trop lourde pour le brouillon du navigateur)
-  function uploadVideo(file, it) {
+  // opts.poster : crée aussi l'image d'aperçu de la vidéo (stockée dans it.image) ; opts.after : ré-affichage
+  function videoPoster(file, cb) {
+    var url = URL.createObjectURL(file), v = document.createElement('video');
+    var done = false;
+    function finish(r) { if (done) return; done = true; URL.revokeObjectURL(url); cb(r); }
+    v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
+    v.onloadeddata = function () { try { v.currentTime = Math.min(0.6, (v.duration || 1) / 2); } catch (e) { finish(null); } };
+    v.onseeked = function () {
+      try {
+        var r = Math.min(1, 720 / Math.max(v.videoWidth, v.videoHeight)), c = document.createElement('canvas');
+        c.width = Math.round(v.videoWidth * r); c.height = Math.round(v.videoHeight * r);
+        c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+        finish(c.toDataURL('image/jpeg', 0.8));
+      } catch (e) { finish(null); }
+    };
+    v.onerror = function () { finish(null); };
+    setTimeout(function () { finish(null); }, 8000);
+  }
+  function uploadVideo(file, it, opts) {
+    opts = opts || {};
+    var after = opts.after || renderVit;
     if (!file) return;
     if (!/^video\//.test(file.type)) { toast('Choisissez un fichier vidéo (MP4).'); return; }
     if (file.size > 25 * 1024 * 1024) { toast('Vidéo trop lourde (' + Math.round(file.size / 1048576) + ' Mo). Maximum : 25 Mo.'); return; }
@@ -262,13 +282,64 @@
     var reader = new FileReader();
     reader.onload = function () {
       var ext = /webm/.test(file.type) ? 'webm' : 'mp4';
-      var path = 'videos/' + slug(it.titre) + '-' + Date.now().toString(36) + '.' + ext;
-      putFile(path, String(reader.result).split(',')[1], 'Vidéo : ' + it.titre).then(function () {
-        it.video = path; save(); renderVit(); toast('Vidéo envoyée. Touchez « Publier en ligne » pour l\'afficher sur le site.');
+      var path = 'videos/' + slug(it.titre || it.id) + '-' + Date.now().toString(36) + '.' + ext;
+      putFile(path, String(reader.result).split(',')[1], 'Vidéo : ' + (it.titre || it.id)).then(function () {
+        it.video = path;
+        var finishUp = function () { save(); after(); toast('Vidéo envoyée. Touchez « Publier en ligne » pour l\'afficher sur le site.'); };
+        if (opts.poster) videoPoster(file, function (p) { if (p) it.image = p; finishUp(); });
+        else finishUp();
       }).catch(function (err) { toast('Échec de l\'envoi : ' + err.message); });
     };
     reader.readAsDataURL(file);
   }
+
+  /* --- Page Rencontre --- */
+  function ren() {
+    var b = data.boutique;
+    if (!b.rencontre) b.rencontre = {};
+    var r = b.rencontre;
+    if (!r.principale) r.principale = { id: 'rencontre-principale', titre: 'Ma présentation', video: '', image: '' };
+    if (!r.preuves) r.preuves = [];
+    return r;
+  }
+  function videoCard(it, kind) {
+    var has = !!it.video;
+    return '<article class="item" data-id="' + esc(it.id) + '" data-kind="' + kind + '">' +
+      '<div class="item__img">' + (it.image ? '<img src="' + esc(it.image) + '" alt="">' : '<div style="width:170px;height:170px;border-radius:12px;background:#e8e2d6;display:grid;place-items:center;color:#9ca3af;font-size:.8rem;text-align:center">Pas de vidéo</div>') + '</div>' +
+      '<div class="fields">' +
+        (kind === 'proof' ? '<label class="w6">Légende (facultatif)<input data-k="titre" value="' + esc(it.titre) + '" placeholder="Ex. Moi, aujourd\'hui"></label>' : '') +
+        '<label class="w6">' + (has ? '<span style="color:#166534">✓ Vidéo ajoutée : ' + esc(it.video.split('/').pop()) + '</span>' : '<span style="color:#9ca3af">Aucune vidéo pour le moment</span>') +
+          '<input type="file" accept="video/mp4,video/webm,video/quicktime" data-video style="width:auto"></label>' +
+      '</div>' +
+      '<div class="item__actions">' + (has ? '<button class="mini" data-act="novideo">Retirer la vidéo</button>' : '') + (kind === 'proof' ? '<button class="mini mini--danger" data-act="del">Supprimer</button>' : '') + '</div></article>';
+  }
+  function renderRen() {
+    var r = ren(), w = $('[data-r="whatsapp"]'); if (w && document.activeElement !== w) w.value = r.whatsapp || '';
+    $('#ren-main').innerHTML = videoCard(r.principale, 'main');
+    $('#ren-proofs').innerHTML = r.preuves.map(function (p) { return videoCard(p, 'proof'); }).join('') || '<p class="counter">Aucune vidéo « preuve » pour le moment.</p>';
+  }
+  function findRen(el) {
+    var card = el.closest('.item'), r = ren();
+    return card.dataset.kind === 'main' ? r.principale : r.preuves.find(function (x) { return x.id === card.dataset.id; });
+  }
+  $('#p-rencontre').addEventListener('input', function (e) {
+    if (e.target.dataset.r) { ren()[e.target.dataset.r] = e.target.value.replace(/\D/g, ''); save(); }
+    else if (e.target.dataset.k) { findRen(e.target)[e.target.dataset.k] = e.target.value; save(); }
+  });
+  $('#p-rencontre').addEventListener('change', function (e) {
+    if (e.target.hasAttribute('data-video')) uploadVideo(e.target.files[0], findRen(e.target), { poster: true, after: renderRen });
+  });
+  $('#p-rencontre').addEventListener('click', function (e) {
+    var act = e.target.dataset.act; if (!act) return;
+    var it = findRen(e.target);
+    if (act === 'novideo') { it.video = ''; it.image = ''; }
+    else if (act === 'del') { if (!confirm('Supprimer cette vidéo ?')) return; var l = ren().preuves; l.splice(l.indexOf(it), 1); }
+    save(); renderRen();
+  });
+  $('#add-proof').addEventListener('click', function () {
+    ren().preuves.push({ id: uid('preuve'), titre: '', video: '', image: '' });
+    save(); renderRen();
+  });
 
   /* --- Catégories --- */
   function renderCats() {
@@ -487,6 +558,8 @@
     var vip = d.boutique.offres && d.boutique.offres.vip;
     if (vip) { vip.id = vip.id || 'pack-vip'; list.push(vip); }
     ((d.boutique.vitrine || {}).items || []).forEach(function (it) { it.nom = it.nom || it.titre; list.push(it); });
+    var rc = d.boutique.rencontre;
+    if (rc) [rc.principale].concat(rc.preuves || []).forEach(function (it) { if (it) { it.nom = it.nom || it.titre || it.id; list.push(it); } });
     return list;
   }
 
@@ -565,7 +638,7 @@
   $('#btn-publish').addEventListener('click', publish);
   $('#btn-publish-top').addEventListener('click', publish);
 
-  function renderAll() { renderProducts(); renderCats(); renderInfos(); renderVit(); }
+  function renderAll() { renderProducts(); renderCats(); renderInfos(); renderVit(); renderRen(); }
   renderAll();
   updateStatus();
 })();
