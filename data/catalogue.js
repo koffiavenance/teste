@@ -108,7 +108,8 @@ window.BLOOM_CATALOGUE = {
         "id": "rencontre-principale",
         "titre": "Ma présentation",
         "video": "",
-        "image": ""
+        "image": "",
+        "nom": "Ma présentation"
       },
       "preuves": [],
       "suivi": {
@@ -443,5 +444,5 @@ window.BLOOM_CATALOGUE = {
       "prixVIP": null
     }
   ],
-  "version": 1793214256613
+  "version": 1793347711559
 };
