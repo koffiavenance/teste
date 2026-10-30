@@ -103,7 +103,7 @@
   bar.setAttribute('role', 'dialog');
   bar.setAttribute('aria-label', 'Cookies');
   bar.innerHTML = '<p>Nous utilisons des cookies pour mesurer la fréquentation et améliorer nos publicités (' + [ids.google || ids.googleAds ? 'Google' : '', ids.meta ? 'Facebook, Instagram' : '', ids.tiktok ? 'TikTok' : ''].filter(Boolean).join(', ') + '). ' +
-    '<a href="politique-confidentialite.html' + (isRen ? '#rencontre' : '') + '">En savoir plus</a></p>' +
+    '<a href="politique-confidentialite.html' + (isRen ? '#vision' : '') + '">En savoir plus</a></p>' +
     '<div><button type="button" class="btn btn--orange" data-c="oui">Accepter</button>' +
     '<button type="button" class="btn consent__no" data-c="non">Refuser</button></div>';
   function decide(v) {
