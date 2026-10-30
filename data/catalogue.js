@@ -111,7 +111,15 @@ window.BLOOM_CATALOGUE = {
         "image": "",
         "nom": "Ma présentation"
       },
-      "preuves": [],
+      "preuves": [
+        {
+          "id": "preuve-zifz",
+          "titre": "Souvenir",
+          "video": "",
+          "image": "",
+          "nom": "Souvenir"
+        }
+      ],
       "suivi": {
         "meta": "1850329749302771"
       }
@@ -444,5 +452,5 @@ window.BLOOM_CATALOGUE = {
       "prixVIP": null
     }
   ],
-  "version": 1793347799368
+  "version": 1793347888852
 };
