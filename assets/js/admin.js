@@ -576,16 +576,52 @@
   /* --- Publication sur GitHub --- */
   var gh = { owner: 'koffiavenance', repo: 'teste', branch: 'main', token: '' };
   try { Object.assign(gh, JSON.parse(localStorage.getItem(GH_KEY) || '{}')); } catch (e) { /* ignore */ }
+  gh.token = String(gh.token || '').replace(/\s+/g, '');
   ['owner', 'repo', 'branch', 'token'].forEach(function (k) {
     var el = $('#gh-' + k);
     el.value = gh[k] || '';
     el.addEventListener('input', function () {
-      gh[k] = el.value.trim();
+      // Une clé collée peut contenir des espaces, des retours à la ligne ou « Bearer » : on les retire
+      gh[k] = k === 'token' ? el.value.replace(/^\s*(bearer|token)\s+/i, '').replace(/\s+/g, '') : el.value.trim();
       try { localStorage.setItem(GH_KEY, JSON.stringify(gh)); } catch (e) { /* ignore */ }
+      if (k === 'token') { clearTimeout(checkKey.t); if (gh.token.length >= 30) checkKey.t = setTimeout(checkKey, 900); else showCheck('', ''); }
     });
   });
+
+  // Test de la clé : dit précisément ce qui ne va pas
+  function showCheck(kind, text) {
+    var el = $('#gh-check'); if (!el) return;
+    el.hidden = !text; el.className = 'vstat vstat--' + kind; el.textContent = text;
+    el.style.marginTop = '1rem';
+  }
+  function checkKey() {
+    var t = gh.token;
+    if (!t) { showCheck('err', '✗ Aucune clé : collez-la dans la case « Clé d\'accès ».'); return; }
+    if (/^EAA/.test(t)) { showCheck('err', '✗ Ce code commence par EAA : c\'est un jeton Meta (Facebook), pas une clé GitHub. Une clé GitHub commence par ghp_ ou github_pat_.'); return; }
+    if (!/^(ghp_|github_pat_|gho_|ghu_|ghs_)/.test(t)) { showCheck('err', '✗ Ce code ne ressemble pas à une clé GitHub (elle commence par ghp_ ou github_pat_). Vérifiez que vous avez copié la bonne clé en entier.'); return; }
+    showCheck('info', '⏳ Test de la clé en cours…');
+    var H = { 'Authorization': 'Bearer ' + t, 'Accept': 'application/vnd.github+json' };
+    fetch('https://api.github.com/user', { headers: H }).then(function (r) {
+      if (r.status === 401) { showCheck('err', '✗ GitHub refuse cette clé : elle est incorrecte, mal copiée (incomplète), expirée ou supprimée. Créez-en une nouvelle.'); return null; }
+      if (!r.ok) { showCheck('err', '✗ GitHub répond avec l\'erreur ' + r.status + '. Réessayez dans un instant.'); return null; }
+      var scopes = r.headers.get('x-oauth-scopes');
+      return r.json().then(function (u) { return { login: u.login, scopes: scopes }; });
+    }).then(function (who) {
+      if (!who) return;
+      return fetch('https://api.github.com/repos/' + gh.owner + '/' + gh.repo, { headers: H }).then(function (r) {
+        if (r.status === 404) { showCheck('err', '✗ La clé est valide (compte : ' + who.login + ') mais elle ne voit pas le dépôt « ' + gh.owner + '/' + gh.repo + ' ». ' + (who.login.toLowerCase() !== gh.owner.toLowerCase() ? 'Vous êtes connecté avec un autre compte que « ' + gh.owner + ' » : recréez la clé depuis le compte ' + gh.owner + '.' : 'Si c\'est une clé « précise », elle doit inclure ce dépôt.')); return; }
+        if (!r.ok) { showCheck('err', '✗ Erreur ' + r.status + ' en lisant le dépôt.'); return; }
+        return r.json().then(function (repo) {
+          var p = repo.permissions || {};
+          if (p.push === false) { showCheck('err', '✗ La clé est valide (compte : ' + who.login + ') mais en lecture seule. Il faut le droit d\'écriture : « public_repo » (clé classique) ou « Contents : Read and write » (clé précise).'); return; }
+          showCheck('ok', '✓ La clé fonctionne (compte : ' + who.login + '). Vous pouvez publier.' + (who.scopes !== null && who.scopes !== undefined && who.scopes.indexOf('repo') === -1 ? ' Attention : il manque l\'autorisation « public_repo ».' : ''));
+        });
+      });
+    }).catch(function () { showCheck('err', '✗ Impossible de joindre GitHub : vérifiez votre connexion internet.'); });
+  }
+  $('#gh-test').addEventListener('click', checkKey);
   $('#gh-forget').addEventListener('click', function () {
-    gh.token = ''; $('#gh-token').value = '';
+    gh.token = ''; $('#gh-token').value = ''; showCheck('', '');
     try { localStorage.setItem(GH_KEY, JSON.stringify(gh)); } catch (e) { /* ignore */ }
     toast('Clé supprimée de ce navigateur.');
   });

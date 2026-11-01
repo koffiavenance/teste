@@ -84,7 +84,7 @@
     <nav class="a-tabs" role="tablist">
       <button class="a-tab is-active" data-tab="produits">Produits</button>
       <button class="a-tab" data-tab="vitrine">Vitrine animée</button>
-      <button class="a-tab" data-tab="rencontre">Page Rencontre</button>
+      <button class="a-tab" data-tab="rencontre">Page Vision</button>
       <button class="a-tab" data-tab="categories">Catégories</button>
       <button class="a-tab" data-tab="infos">Offres &amp; infos</button>
       <button class="a-tab" data-tab="publier">Publication</button>
@@ -128,7 +128,7 @@
     <!-- PAGE RENCONTRE -->
     <section class="panel" id="p-rencontre" hidden>
       <div class="help">
-        <strong>Page Rencontre :</strong> adresse à partager : <b>https://bloomshoes.site/vision</b> (non visible depuis la boutique, non référencée sur Google).
+        <strong>Page Vision :</strong> adresse à partager : <b>https://bloomshoes.site/vision</b> (non visible depuis la boutique, non référencée sur Google).
         Ajoutez ici vos vidéos : MP4, 25 Mo maximum chacune. Astuce : envoyez la vidéo à vous-même sur WhatsApp puis enregistrez-la, WhatsApp la réduit automatiquement.
         Il faut avoir collé votre clé dans l'onglet Publication avant d'envoyer une vidéo.
       </div>
@@ -176,9 +176,11 @@
           <label class="w6">Clé d'accès (jeton GitHub)<input id="gh-token" type="password" placeholder="github_pat_…" autocomplete="off"></label>
         </div>
         <div class="bar">
+          <button class="btn btn--navy" id="gh-test">Tester la clé</button>
           <button class="btn btn--orange" id="btn-publish">Publier en ligne</button>
           <button class="mini mini--danger" id="gh-forget">Oublier la clé</button>
         </div>
+        <span class="vstat" id="gh-check" hidden></span>
         <div class="log" id="log"></div>
       </div>
       <div class="card-box">
