@@ -254,6 +254,7 @@
     lastFocus = document.activeElement;
     $('#m-img').src = p.image;
     $('#m-img').alt = p.nom;
+    $('.modal__media').style.setProperty('--bg', 'url("' + p.image + '")');
     $('#m-cat').textContent = catName(p.categorie);
     $('#m-nom').textContent = p.nom;
     $('#m-prix-ess').textContent = money(p.prix);
