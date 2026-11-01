@@ -257,7 +257,7 @@
   function videoPoster(file, cb) {
     var url = URL.createObjectURL(file), v = document.createElement('video');
     var done = false;
-    function finish(r) { if (done) return; done = true; URL.revokeObjectURL(url); cb(r); }
+    function finish(r) { if (done) return; done = true; var w = v.videoWidth, h = v.videoHeight; URL.revokeObjectURL(url); cb(r, w, h); }
     v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
     v.onloadeddata = function () { try { v.currentTime = Math.min(0.6, (v.duration || 1) / 2); } catch (e) { finish(null); } };
     v.onseeked = function () {
@@ -338,7 +338,7 @@
           setStat(id, 'ok', '✓ Vidéo envoyée (' + mb + ' Mo). Touchez maintenant « Publier en ligne » en haut de la page.');
           save(); after();
         };
-        if (opts.poster) videoPoster(file, function (p) { if (p) it.image = p; finishUp(); });
+        if (opts.poster) videoPoster(file, function (p, w, h) { if (p) it.image = p; if (w && h) it.portrait = h > w; finishUp(); });
         else finishUp();
       }).catch(function (err) {
         var m = err.message || '';
@@ -363,7 +363,7 @@
     return '<article class="item" data-id="' + esc(it.id) + '" data-kind="' + kind + '">' +
       '<div class="item__img">' + (it.image ? '<img src="' + esc(it.image) + '" alt="">' : '<div style="width:170px;height:170px;border-radius:12px;background:#e8e2d6;display:grid;place-items:center;color:#9ca3af;font-size:.8rem;text-align:center">Pas de vidéo</div>') + '</div>' +
       '<div class="fields">' +
-        (kind === 'proof' ? '<label class="w6">Légende (facultatif)<input data-k="titre" value="' + esc(it.titre) + '" placeholder="Ex. Moi, aujourd\'hui"></label>' : '') +
+        (kind === 'proof' ? '<label class="w6">Légende (facultatif)<input data-k="titre" value="' + esc(it.titre) + '" placeholder="Ex. Moi, aujourd\'hui"></label><label class="w6">Description (facultatif)<input data-k="texte" value="' + esc(it.texte) + '" placeholder="Ex. Vidéo tournée cette semaine à Abidjan"></label>' : '') +
         '<label class="w6">' + (has ? '<span style="color:#166534">✓ Vidéo ajoutée : ' + esc(it.video.split('/').pop()) + '</span>' : '<span style="color:#9ca3af">Aucune vidéo pour le moment</span>') +
           '<input type="file" accept="video/*,.mp4,.mov,.m4v,.webm,.3gp" data-video style="width:auto">' + vstatHtml(it.id) + '</label>' +
       '</div>' +
@@ -371,6 +371,7 @@
   }
   function renderRen() {
     var r = ren(), w = $('[data-r="whatsapp"]'); if (w && document.activeElement !== w) w.value = r.whatsapp || '';
+    $$('[data-rt]').forEach(function (el) { if (document.activeElement !== el) el.value = getPath(r, el.dataset.rt) || ''; });
     var px = $('[data-rs="meta"]'); if (px && document.activeElement !== px) px.value = (r.suivi && r.suivi.meta) || '';
     $('#ren-main').innerHTML = videoCard(r.principale, 'main');
     $('#ren-proofs').innerHTML = r.preuves.map(function (p) { return videoCard(p, 'proof'); }).join('') || '<p class="counter">Aucune vidéo « preuve » pour le moment.</p>';
@@ -385,7 +386,8 @@
       var val = e.target.value.trim();
       if (/^EAA/i.test(val) || val.length > 25) { toast('Ceci n\'est pas un numéro de pixel : c\'est un jeton secret. Ne le collez pas ici.'); e.target.value = ''; rr.suivi[e.target.dataset.rs] = ''; save(); return; }
       rr.suivi[e.target.dataset.rs] = val.replace(/\D/g, ''); save();
-    } else if (e.target.dataset.r) { ren()[e.target.dataset.r] = e.target.value.replace(/\D/g, ''); save(); }
+    } else if (e.target.dataset.rt) { setPath(ren(), e.target.dataset.rt, e.target.value); save(); }
+    else if (e.target.dataset.r) { ren()[e.target.dataset.r] = e.target.value.replace(/\D/g, ''); save(); }
     else if (e.target.dataset.k) { findRen(e.target)[e.target.dataset.k] = e.target.value; save(); }
   });
   $('#p-rencontre').addEventListener('change', function (e) {

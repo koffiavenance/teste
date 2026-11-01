@@ -17,6 +17,7 @@
     meta: val('meta', /^\d{6,20}$/),
     tiktok: val('tiktok', /^[A-Z0-9]{10,30}$/i)
   };
+  if (/[?&]apercu=1/.test(location.search)) { window.bloomTrack = function () {}; return; }
   var active = !!(ids.google || ids.googleAds || ids.meta || ids.tiktok);
   var loaded = false, queue = [];
 

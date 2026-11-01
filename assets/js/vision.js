@@ -3,6 +3,17 @@
   'use strict';
 
   var shop = (window.BLOOM_CATALOGUE || {}).boutique || {};
+  // Aperçu depuis l'administration : on affiche le brouillon enregistré sur cet appareil
+  if (/[?&]apercu=1/.test(location.search)) {
+    try {
+      var draft = JSON.parse(localStorage.getItem('bloom_brouillon') || 'null');
+      if (draft && draft.boutique) shop = draft.boutique;
+    } catch (e) { /* stockage indisponible */ }
+    var bar = document.createElement('div');
+    bar.style.cssText = 'position:sticky;top:0;z-index:60;background:#e07a2f;color:#fff;text-align:center;font:500 .85rem Poppins,sans-serif;padding:.5rem';
+    bar.innerHTML = 'Mode aperçu : vous voyez vos modifications non publiées. <a href="admin.html" style="color:#fff;font-weight:600">Retour à l\'administration</a>';
+    document.body.prepend(bar);
+  }
   var cfg = shop.rencontre || {};
   var num = String(cfg.whatsapp || shop.whatsapp || '').replace(/\D/g, '');
 
@@ -19,17 +30,32 @@
     return '<video src="' + esc(v.video) + '"' + (v.image ? ' poster="' + esc(v.image) + '"' : '') +
       ' controls playsinline preload="metadata" controlsList="nodownload"></video>' + (tag ? '<span class="rv-tag">' + esc(tag) + '</span>' : '');
   }
+  // Une vidéo tournée au téléphone est verticale : on adapte le cadre pour qu'elle soit grande et bien visible
+  function fitBox(box, item) {
+    function set(portrait) { box.classList.toggle('is-portrait', !!portrait); }
+    if (typeof item.portrait === 'boolean') set(item.portrait);
+    var vid = $('video', box);
+    vid.addEventListener('loadedmetadata', function () { if (vid.videoWidth) set(vid.videoHeight > vid.videoWidth); });
+    if (typeof item.portrait !== 'boolean' && item.image) {
+      var im = new Image(); im.onload = function () { if (!vid.videoWidth) set(im.naturalHeight > im.naturalWidth); }; im.src = item.image;
+    }
+  }
   var main = cfg.principale && cfg.principale.video ? cfg.principale : null;
   if (main) {
     $('#presentation').hidden = false;
     $('#rv-main').innerHTML = videoHtml(main, 'Ma présentation');
+    fitBox($('#rv-main'), main);
+    if (main.titreSection) $('#rv-ptitle').textContent = main.titreSection;
+    if (main.texte) $('#rv-ptext').textContent = main.texte;
   }
   var proofs = (cfg.preuves || []).filter(function (p) { return p.video; });
   if (proofs.length) {
     $('#preuves').hidden = false;
+    if (cfg.preuvesTitre) $('#rv-qtitle').textContent = cfg.preuvesTitre;
+    if (cfg.preuvesTexte) $('#rv-qtext').textContent = cfg.preuvesTexte;
     $('#rv-proofs').innerHTML = proofs.map(function (p) {
       return '<figure class="rv-proof"><div class="rv-video rv-video--portrait">' + videoHtml(p, 'C\'est bien moi') + '</div>' +
-        (p.titre ? '<figcaption>' + esc(p.titre) + '</figcaption>' : '') + '</figure>';
+        (p.titre || p.texte ? '<figcaption>' + (p.titre ? '<b>' + esc(p.titre) + '</b>' : '') + (p.texte ? '<span>' + esc(p.texte) + '</span>' : '') + '</figcaption>' : '') + '</figure>';
     }).join('');
   }
   // Une seule vidéo à la fois

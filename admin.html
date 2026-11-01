@@ -132,6 +132,7 @@
         Ajoutez ici vos vidéos : MP4, 25 Mo maximum chacune. Astuce : envoyez la vidéo à vous-même sur WhatsApp puis enregistrez-la, WhatsApp la réduit automatiquement.
         Il faut avoir collé votre clé dans l'onglet Publication avant d'envoyer une vidéo.
       </div>
+      <div class="bar"><a class="btn btn--navy" href="vision.html?apercu=1" target="_blank" rel="noopener">👁 Voir l'aperçu de la page Vision</a><span class="counter">Affiche vos modifications, même avant de publier.</span></div>
       <div class="card-box">
         <h2>Pixel Meta (Facebook / Instagram) de cette page</h2>
         <p>Collez ici le <b>numéro du pixel</b> (15 à 16 chiffres, Gestionnaire d'événements → Sources de données → votre pixel). <b>Ne collez jamais ici le « jeton d'accès » qui commence par EAA</b> : il est secret et ce site est public.</p>
@@ -141,9 +142,18 @@
         <h2>Numéro WhatsApp qui reçoit les formulaires</h2>
         <div class="fields"><label class="w3">Numéro (format international, ex. 2250700000000)<input data-r="whatsapp" inputmode="numeric"></label></div>
       </div>
-      <div class="card-box"><h2>Vidéo de présentation</h2><div id="ren-main"></div></div>
+      <div class="card-box"><h2>Vidéo de présentation</h2>
+        <div class="fields" style="margin-bottom:1rem">
+          <label class="w6">Titre de la section<input data-rt="principale.titreSection" placeholder="Ex. Fais connaissance en vidéo"></label>
+          <label class="w6">Description (de quoi parle cette vidéo ?)<textarea data-rt="principale.texte" rows="3" placeholder="Ex. Dans cette vidéo, je me présente, je te parle de mes valeurs et de ce que je recherche."></textarea></label>
+        </div>
+        <div id="ren-main"></div></div>
       <div class="card-box">
         <h2>Vidéos « C'est bien moi » (preuves)</h2>
+        <div class="fields" style="margin-bottom:1rem">
+          <label class="w6">Titre de la section<input data-rt="preuvesTitre" placeholder="Ex. Pas de faux profil, voici qui je suis"></label>
+          <label class="w6">Description de la section<textarea data-rt="preuvesTexte" rows="2" placeholder="Ex. De vraies vidéos, pour que tu saches exactement à qui tu parles."></textarea></label>
+        </div>
         <div class="bar"><button class="btn btn--navy" id="add-proof">+ Ajouter une vidéo</button></div>
         <div class="items" id="ren-proofs"></div>
       </div>
